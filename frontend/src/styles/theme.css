@@ -1,0 +1,44 @@
+/* src/styles/theme.css */
+
+:root {
+  /* Brisk Brand Palette (core) */
+  --brand-green: #2f8f2f;
+  --brand-earth: #8c6e47;
+  --brand-yellow: #f0c02f;
+  --brand-contrast: #1f1f1f;
+
+  /* Semantic Colors mapped to Brisk palette */
+  --color-primary: var(--brand-green);
+  --color-primary-dark: #236623;
+  --color-secondary: var(--brand-earth);
+
+  /* Neutral Palette */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+
+  /* Typography */
+  --font-primary: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-secondary: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  /* General fallback */
+  --font-sans: var(--font-primary);
+
+  /* UI Tokens */
+  --radius: 8px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+}

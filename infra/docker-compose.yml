@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: construction_db
+    environment:
+      POSTGRES_DB: construction_db
+      POSTGRES_USER: construction_user
+      POSTGRES_PASSWORD: construction_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - construction_net
+
+  backend:
+    build:
+      context: ../backend
+    container_name: construction_backend
+    env_file:
+      - ./configs/backend.env
+    environment:
+      APP_ENV: development
+      BACKEND_PORT: 8000
+      DATABASE_URL: postgresql+psycopg2://construction_user:construction_pass@db:5432/construction_db
+      JWT_SECRET_KEY: change-this-secret
+      JWT_ALGORITHM: HS256
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - construction_net
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: construction_frontend
+    environment:
+      VITE_API_BASE_URL: http://backend:8000
+      FRONTEND_PORT: 5173
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - construction_net
+
+networks:
+  construction_net:
+
+volumes:
+  db_data:
