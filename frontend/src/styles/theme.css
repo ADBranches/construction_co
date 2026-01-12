@@ -1,18 +1,24 @@
 /* src/styles/theme.css */
 
 :root {
-  /* Brisk Brand Palette (core) */
-  --brand-green: #2f8f2f;
-  --brand-earth: #8c6e47;
-  --brand-yellow: #f0c02f;
-  --brand-contrast: #1f1f1f;
+  /* BRISK Brand Palette (from BRAND COLORS.pdf) */
+  --brisk-deep-green: #003023;
+  --brisk-orange: #f05010;
+  --brisk-light-green: #83c441;
+  --brisk-cream: #f6fef9;
+
+  /* Brand aliases used across the app */
+  --brand-green: var(--brisk-deep-green);   /* primary deep green */
+  --brand-earth: var(--brisk-light-green);  /* supporting light green */
+  --brand-yellow: var(--brisk-orange);      /* orange accent */
+  --brand-contrast: #1f1f1f;                /* neutral dark for text */
 
   /* Semantic Colors mapped to Brisk palette */
   --color-primary: var(--brand-green);
-  --color-primary-dark: #236623;
+  --color-primary-dark: #001b14; /* darker tone of #003023 for hovers */
   --color-secondary: var(--brand-earth);
 
-  /* Neutral Palette */
+  /* Neutral Palette (you can leave these as-is) */
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
   --gray-300: #d1d5db;
@@ -25,7 +31,6 @@
     "Segoe UI", sans-serif;
   --font-secondary: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
-  /* General fallback */
   --font-sans: var(--font-primary);
 
   /* UI Tokens */

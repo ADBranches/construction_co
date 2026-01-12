@@ -8,7 +8,7 @@ export default function StatCard({ label, value, color = "orange" }) {
       : "bg-[var(--brand-green)]";
 
   return (
-    <div className="rounded-lg border border-[var(--brand-green)]/15 bg-white p-6 shadow-sm">
+    <div className="brand-card p-5">
       <p className="text-xs font-medium text-[var(--brand-contrast)]/70">
         {label}
       </p>

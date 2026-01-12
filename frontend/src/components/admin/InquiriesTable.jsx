@@ -20,7 +20,6 @@ export default function InquiriesTable({ inquiries = [], onResolve }) {
       classes +=
         " bg-[var(--brand-yellow)]/10 text-[var(--brand-yellow)] border border-[var(--brand-yellow)]/30";
     } else {
-      // default / new
       classes +=
         " bg-[var(--brand-earth)]/10 text-[var(--brand-earth)] border border-[var(--brand-earth)]/30";
     }
@@ -30,7 +29,7 @@ export default function InquiriesTable({ inquiries = [], onResolve }) {
 
   if (!inquiries.length) {
     return (
-      <div className="rounded-xl border border-[var(--brand-green)]/15 bg-white p-4 text-xs text-[var(--brand-contrast)]/70">
+      <div className="brand-card p-4 text-xs text-[var(--brand-contrast)]/70">
         No inquiries have been received yet. Once clients submit contact or
         quote forms, they will appear here.
       </div>
@@ -38,16 +37,16 @@ export default function InquiriesTable({ inquiries = [], onResolve }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-[var(--brand-green)]/15 bg-white shadow-sm">
+    <div className="brand-card overflow-x-auto p-0">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="bg-[var(--brand-green)] text-[#fdfcf7] text-xs uppercase tracking-[0.16em]">
+          <tr className="bg-[var(--brand-green)] text-xs uppercase tracking-[0.16em] text-[#fdfcf7]">
             <th className="p-3 text-left">Name</th>
             <th className="p-3 text-left">Email</th>
             <th className="p-3 text-left">Message</th>
             <th className="p-3 text-left">Status</th>
             <th className="p-3 text-left">Created</th>
-            <th className="p-3 w-28 text-right"></th>
+            <th className="w-28 p-3 text-right"></th>
           </tr>
         </thead>
 
@@ -61,19 +60,19 @@ export default function InquiriesTable({ inquiries = [], onResolve }) {
                 key={i.id || idx}
                 className="border-t border-[var(--brand-green)]/10 hover:bg-[var(--brand-green)]/3"
               >
-                <td className="p-3 align-top text-[var(--brand-contrast)] text-xs">
+                <td className="p-3 align-top text-xs text-[var(--brand-contrast)]">
                   {i.full_name || i.name || "-"}
                 </td>
-                <td className="p-3 align-top text-[var(--brand-contrast)] text-xs">
+                <td className="p-3 align-top text-xs text-[var(--brand-contrast)]">
                   {i.email || "-"}
                 </td>
-                <td className="p-3 align-top text-[var(--brand-contrast)]/80 text-xs max-w-xs">
+                <td className="max-w-xs p-3 align-top text-xs text-[var(--brand-contrast)]/80">
                   <p className="line-clamp-3">{i.message || "-"}</p>
                 </td>
                 <td className="p-3 align-top text-xs">
                   {renderStatusPill(i.status)}
                 </td>
-                <td className="p-3 align-top text-[var(--brand-contrast)]/60 text-[11px]">
+                <td className="p-3 align-top text-[11px] text-[var(--brand-contrast)]/60">
                   {formatDate(created)}
                 </td>
                 <td className="p-3 align-top text-right">

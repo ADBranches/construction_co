@@ -7,17 +7,25 @@ export default function PrimaryButton({
   loading = false,
   className = "",
 }) {
-  const baseClasses =
-    "inline-flex items-center justify-center px-6 py-3 rounded-full text-xs font-semibold uppercase tracking-[0.16em] text-[#1f1f1f] " +
-    "bg-gradient-to-r from-[#f0c02f] to-[#f7d85b] hover:from-[#f7d85b] hover:to-[#f0c02f] " +
-    "shadow-md shadow-[#2f8f2f]/25 transition-all duration-200";
+  const baseClasses = [
+    "inline-flex items-center justify-center",
+    "px-5 py-2.5 rounded-full",
+    "text-[11px] font-semibold uppercase tracking-[0.16em]",
+    "bg-[var(--brand-yellow)] text-[var(--brand-contrast)]",
+    "shadow-md shadow-black/10",
+    "transition-transform duration-150",
+    "hover:brightness-110 hover:-translate-y-[1px]",
+    "focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)] focus:ring-offset-1",
+    "focus:ring-offset-[var(--brisk-cream,#f6fef9)]",
+    loading ? "opacity-70 cursor-not-allowed" : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (href) {
     return (
-      <a
-        href={href}
-        className={`${baseClasses} ${loading ? "opacity-70 cursor-not-allowed" : ""} ${className}`}
-      >
+      <a href={href} className={baseClasses}>
         {loading ? "Loading..." : text}
       </a>
     );
@@ -28,9 +36,7 @@ export default function PrimaryButton({
       type={type}
       onClick={onClick}
       disabled={loading}
-      className={`${baseClasses} ${
-        loading ? "opacity-70 cursor-not-allowed" : ""
-      } ${className}`}
+      className={baseClasses}
     >
       {loading ? "Loading..." : text}
     </button>

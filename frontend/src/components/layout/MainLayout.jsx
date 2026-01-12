@@ -4,7 +4,7 @@ import Footer from "./Footer.jsx";
 
 function MainLayout({ children }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5faf4] text-[#1f1f1f]">
+    <div className="min-h-screen flex flex-col bg-[var(--brisk-cream,#f6fef9)] text-[var(--brand-contrast,#1f1f1f)]">
       <Navbar />
 
       <main className="flex-1">

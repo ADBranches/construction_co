@@ -10,9 +10,9 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-[var(--brand-contrast)] text-[#fdfcf7] pt-6 shadow-lg z-40">
-      <div className="px-4 mb-8">
-        <h1 className="text-lg font-bold tracking-[0.18em] uppercase text-[var(--brand-yellow)]">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-[var(--brand-contrast,#1f1f1f)] pt-6 text-[#fdfcf7] shadow-lg">
+      <div className="mb-8 px-4">
+        <h1 className="text-lg font-bold uppercase tracking-[0.18em] text-[var(--brand-yellow)]">
           Brisk Admin
         </h1>
         <p className="mt-1 text-[11px] text-[#fdfcf7]/70">
@@ -26,7 +26,7 @@ export default function Sidebar() {
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `px-4 py-2 rounded-lg text-sm font-medium transition ${
+              `rounded-lg px-4 py-2 text-sm font-medium transition ${
                 isActive
                   ? "bg-[var(--brand-green)] text-[#fdfcf7] shadow shadow-[var(--brand-green)]/40"
                   : "text-[#fdfcf7]/80 hover:bg-[var(--brand-green)]/10"

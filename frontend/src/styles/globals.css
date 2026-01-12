@@ -7,12 +7,12 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+  
 html,
 body {
   /* Brisk default typography */
   font-family: var(--font-primary, var(--font-sans));
-  background: #f5faf4; /* light, farm-friendly background */
+  background: var(--brisk-cream, #f6fef9); /* use brand cream */
   color: var(--brand-contrast);
   min-height: 100%;
   line-height: 1.5;
