@@ -1,22 +1,16 @@
-# backend/app/models/user.py
+# app/models/testimonial.py
 import uuid
 from datetime import datetime
-from enum import Enum as PyEnum  # 👈 add
 
-from sqlalchemy import String, Boolean, DateTime, func, Enum  # 👈 add Enum
+from sqlalchemy import Boolean, DateTime, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..database import Base
+from app.database import Base
 
 
-class UserRole(str, PyEnum):
-    ADMIN = "admin"
-    STAFF = "staff"
-
-
-class User(Base):
-    __tablename__ = "users"
+class Testimonial(Base):
+    __tablename__ = "testimonials"
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -24,39 +18,35 @@ class User(Base):
         default=uuid.uuid4,
     )
 
-    email: Mapped[str] = mapped_column(
+    name: Mapped[str] = mapped_column(
         String(255),
-        unique=True,
-        index=True,
         nullable=False,
     )
 
-    full_name: Mapped[str | None] = mapped_column(
+    role: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
     )
 
-    hashed_password: Mapped[str] = mapped_column(
+    company: Mapped[str | None] = mapped_column(
         String(255),
+        nullable=True,
+    )
+
+    quote: Mapped[str] = mapped_column(
+        Text,
         nullable=False,
     )
 
-    # NEW: role (admin / staff)
-    role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, name="user_role"),
-        default=UserRole.STAFF,
+    is_featured: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
         nullable=False,
     )
 
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
-        nullable=False,
-    )
-
-    is_superuser: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
         nullable=False,
     )
 
@@ -74,4 +64,4 @@ class User(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<User id={self.id} email={self.email!r} role={self.role}>"
+        return f"<Testimonial id={self.id} name={self.name!r}>"

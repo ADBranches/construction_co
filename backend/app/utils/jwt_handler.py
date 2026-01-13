@@ -1,6 +1,6 @@
 # backend/app/utils/jwt_handler.py
 from datetime import datetime, timedelta, timezone
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 from jose import JWTError, jwt
 
@@ -12,19 +12,38 @@ settings = get_settings()
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 
-def create_access_token(subject: Any, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(
+    data: Dict[str, Any],
+    expires_delta: Optional[timedelta] = None,
+) -> str:
     """
     Create a signed JWT access token.
 
-    subject: typically the user ID (UUID as string)
+    `data` is a dict that will be encoded into the token payload.
+    For example:
+        {
+            "sub": "<user_id>",
+            "email": "admin@example.com",
+            "role": "admin",
+            "is_superuser": False,
+        }
     """
+    to_encode = data.copy()
+
     if expires_delta is None:
         expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     now = datetime.now(timezone.utc)
     expire = now + expires_delta
 
-    to_encode = {"sub": str(subject), "iat": now.timestamp(), "exp": expire}
+    # Add issued-at and expiry
+    to_encode.update(
+        {
+            "iat": now.timestamp(),
+            "exp": expire,
+        }
+    )
+
     encoded_jwt = jwt.encode(
         to_encode,
         settings.jwt_secret_key,

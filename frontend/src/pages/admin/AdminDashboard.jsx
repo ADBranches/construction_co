@@ -1,3 +1,4 @@
+// src/pages/admin/AdminDashboard.jsx
 import { useEffect, useState } from "react";
 import api from "../../lib/apiClient";
 import { authHeader } from "../../lib/auth";
@@ -11,7 +12,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     services: 0,
     projects: 0,
-    inquiries: 0,
+    openInquiries: 0,
   });
 
   const [loading, setLoading] = useState(true);
@@ -23,18 +24,19 @@ export default function AdminDashboard() {
       try {
         const headers = authHeader();
 
-        const [services, projects, inquiries] = await Promise.all([
+        const [services, projectStats, inquiryStats] = await Promise.all([
+          // Public, but we still send auth in case you secure later
           api.get("/api/v1/services", { headers }),
-          api.get("/api/v1/projects", { headers }),
-          api.get("/api/v1/inquiries?limit=100", { headers }),
+          api.get("/api/v1/projects/stats", { headers }),
+          api.get("/api/v1/inquiries/stats", { headers }),
         ]);
 
         if (!mounted) return;
 
         setStats({
-          services: services.length,
-          projects: projects.length,
-          inquiries: inquiries.length,
+          services: Array.isArray(services) ? services.length : 0,
+          projects: projectStats?.total ?? 0,
+          openInquiries: inquiryStats?.open ?? inquiryStats?.total ?? 0,
         });
       } catch (error) {
         console.error("Failed to load dashboard stats", error);
@@ -76,19 +78,16 @@ export default function AdminDashboard() {
             <StatCard
               label="Services"
               value={stats.services}
-              hint="Active service categories available to clients."
               color="green"
             />
             <StatCard
               label="Projects"
               value={stats.projects}
-              hint="Completed & ongoing construction projects."
               color="orange"
             />
             <StatCard
-              label="Inquiries"
-              value={stats.inquiries}
-              hint="Client requests and quotations received."
+              label="Open Inquiries"
+              value={stats.openInquiries}
               color="blue"
             />
           </div>

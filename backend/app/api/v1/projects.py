@@ -1,6 +1,7 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import DataError  
 
 from app.dependencies import get_db, get_current_admin
 from app.models.project import Project, ProjectStatus
@@ -9,6 +10,7 @@ from app.schemas.project import (
     ProjectOut,
     ProjectCreate,
     ProjectUpdate,
+    ProjectListOut,
 )
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
@@ -17,20 +19,14 @@ router = APIRouter(prefix="/projects", tags=["Projects"])
 # =====================================================
 # LIST PROJECTS (PUBLIC)
 # =====================================================
-@router.get("", response_model=dict)
+@router.get("", response_model=ProjectListOut)
 def list_projects(
     db: Session = Depends(get_db),
-
-    # Pagination
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
-
-    # Filters
     status: ProjectStatus | None = Query(None),
     service_slug: str | None = Query(None),
     featured: bool | None = Query(None),
-
-    # Sorting
     sort: str | None = Query(
         None,
         description="Sort by: newest | oldest | featured",
@@ -84,6 +80,54 @@ def list_projects(
         "items": items,
     }
 
+
+
+# =====================================================
+# PROJECT STATS (ADMIN)
+# =====================================================
+@router.get("/stats", response_model=dict)
+def project_stats(
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin),
+):
+    """
+    Admin: summary statistics for dashboard.
+    """
+    total = db.query(Project).count()
+    completed = (
+        db.query(Project)
+        .filter(Project.status == ProjectStatus.COMPLETED)
+        .count()
+    )
+    ongoing = (
+        db.query(Project)
+        .filter(Project.status == ProjectStatus.ONGOING)
+        .count()
+    )
+    planned = (
+        db.query(Project)
+        .filter(Project.status == ProjectStatus.PLANNED)
+        .count()
+    )
+    on_hold = (
+        db.query(Project)
+        .filter(Project.status == ProjectStatus.ON_HOLD)
+        .count()
+    )
+    featured = (
+        db.query(Project)
+        .filter(Project.is_featured.is_(True))
+        .count()
+    )
+
+    return {
+      "total": total,
+      "completed": completed,
+      "ongoing": ongoing,
+      "planned": planned,
+      "on_hold": on_hold,
+      "featured": featured,
+    }
 
 # =====================================================
 # GET SINGLE PROJECT (PUBLIC)

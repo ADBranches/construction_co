@@ -19,34 +19,36 @@ function AdminInquiries() {
   const [error, setError] = useState("");
   const [statusMap, setStatusMap] = useState({});
 
-  const loadInquiries = async () => {
-    setLoading(true);
-    setError("");
-    setMessage("");
+    const loadInquiries = async () => {
+      setLoading(true);
+      setError("");
+      setMessage("");
 
-    const query =
-      statusFilter && statusFilter !== "ALL"
-        ? `?status=${encodeURIComponent(statusFilter)}&limit=100`
-        : "?limit=100";
+      const query =
+        statusFilter && statusFilter !== "ALL"
+          ? `?status=${encodeURIComponent(statusFilter)}&limit=100`
+          : "?limit=100";
 
-    try {
-      const data = await api.get(`/api/v1/inquiries${query}`, {
-        headers: authHeader(),
-      });
+      try {
+        const payload = await api.get(`/api/v1/inquiries${query}`, {
+          headers: authHeader(),
+        });
 
-      setInquiries(data);
+        const items = payload?.items || [];
 
-      const initial = {};
-      data.forEach((inq) => {
-        initial[inq.id] = inq.status;
-      });
-      setStatusMap(initial);
-    } catch (err) {
-      setError(err.message || "Failed to load inquiries.");
-    } finally {
-      setLoading(false);
-    }
-  };
+        setInquiries(items);
+
+        const initial = {};
+        items.forEach((inq) => {
+          initial[inq.id] = inq.status;
+        });
+        setStatusMap(initial);
+      } catch (err) {
+        setError(err.message || "Failed to load inquiries.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
   useEffect(() => {
     loadInquiries();

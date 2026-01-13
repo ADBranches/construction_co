@@ -13,6 +13,9 @@ from .api.v1.projects import router as projects_router
 from .api.v1.services import router as services_router
 from .api.v1.inquiries import router as inquiries_router
 from .api.v1.media import router as media_router
+from .api.v1 import testimonials
+from .api.v1 import subscribers
+from app.api.v1 import api_v1_router
 
 settings = get_settings()
 
@@ -58,12 +61,16 @@ async def log_requests(request: Request, call_next):
 # -----------------------------------------------------
 # API Routers
 # -----------------------------------------------------
-app.include_router(auth_router, prefix="/api/v1", tags=["Auth"])
-app.include_router(users_router, prefix="/api/v1/users", tags=["Users"])
-app.include_router(projects_router, prefix="/api/v1/projects", tags=["Projects"])
-app.include_router(services_router, prefix="/api/v1/services", tags=["Services"])
-app.include_router(inquiries_router, prefix="/api/v1/inquiries", tags=["Inquiries"])
-app.include_router(media_router, prefix="/api/v1/media", tags=["Media"])
+app.include_router(auth_router,      prefix="/api/v1", tags=["Auth"])
+app.include_router(users_router,     prefix="/api/v1", tags=["Users"])
+app.include_router(projects_router,  prefix="/api/v1", tags=["Projects"])
+app.include_router(services_router,  prefix="/api/v1", tags=["Services"])
+app.include_router(inquiries_router, prefix="/api/v1", tags=["Inquiries"])
+app.include_router(media_router,     prefix="/api/v1", tags=["Media"])
+app.include_router(testimonials.router, prefix="/api/v1", tags=["Testimonials"])
+app.include_router(subscribers.router, prefix="/api/v1", tags=["Subscribers"])
+app.include_router(api_v1_router)
+
 
 # -----------------------------------------------------
 # Health Check Endpoint

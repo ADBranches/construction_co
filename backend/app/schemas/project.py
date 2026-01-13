@@ -67,3 +67,14 @@ class ProjectOut(ProjectBase):
     # Optional nested data for richer detail views
     service: ServiceOut | None = None
     media_items: list[MediaOut] = []
+
+class ProjectListOut(BaseModel):
+    """
+    Wrapper for paginated project listings.
+    """
+    model_config = ConfigDict(from_attributes=True)
+
+    total: int
+    page: int
+    limit: int
+    items: list[ProjectBrief]

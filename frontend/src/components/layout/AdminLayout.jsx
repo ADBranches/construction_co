@@ -1,6 +1,6 @@
 // src/components/layout/AdminLayout.jsx
-import { NavLink, useNavigate } from "react-router-dom";
-import clearToken from "../../lib/auth.js";
+import { NavLink } from "react-router-dom";
+import { logout } from "../../lib/auth.js"; // 👈 named import
 
 const baseLink =
   "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-colors";
@@ -10,11 +10,8 @@ const inactiveLink =
   "text-[var(--brand-contrast)]/80 hover:bg-[var(--brand-green)]/5";
 
 function AdminLayout({ children }) {
-  const navigate = useNavigate();
-
   const handleLogout = () => {
-    clearToken();
-    navigate("/admin/login");
+    logout(); // handles token clear + redirect
   };
 
   return (

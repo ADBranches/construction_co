@@ -17,6 +17,7 @@ class InquiryBase(BaseModel):
     source: str | None = None
     service_id: UUID | None = None
     project_id: UUID | None = None
+    assigned_to_id: UUID | None = None
 
 
 class InquiryCreate(InquiryBase):
@@ -36,6 +37,7 @@ class InquiryUpdate(BaseModel):
     service_id: UUID | None = None
     project_id: UUID | None = None
     status: InquiryStatus | None = None
+    assigned_to_id: UUID | None = None
 
 
 class InquiryOut(InquiryBase):

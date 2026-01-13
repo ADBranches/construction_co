@@ -16,13 +16,18 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
+from .service import Service  # Import the Service class
+from .project import Project  # Import the Project class
+from .user import User  # Import the User class
 
 
 class InquiryStatus(str, PyEnum):
     NEW = "NEW"
     IN_REVIEW = "IN_REVIEW"
-    QUOTED = "QUOTED"
-    CLOSED = "CLOSED"
+    CONTACTED = "CONTACTED"
+    PROPOSAL_SENT = "PROPOSAL_SENT"
+    WON = "WON"
+    LOST = "LOST"
 
 
 class Inquiry(Base):
@@ -30,7 +35,9 @@ class Inquiry(Base):
     __table_args__ = (
         Index("ix_inquiries_status", "status"),
         Index("ix_inquiries_created_at", "created_at"),
+        Index("ix_inquiries_assigned_to_id", "assigned_to_id"),
     )
+
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -97,6 +104,12 @@ class Inquiry(Base):
         ForeignKey("projects.id", ondelete="SET NULL"),
         nullable=True,
     )
+    
+    assigned_to_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -122,5 +135,9 @@ class Inquiry(Base):
         back_populates="inquiries",
     )
 
+    assigned_to: Mapped["User | None"] = relationship(
+        "User",
+        backref="assigned_inquiries",
+    )
     def __repr__(self) -> str:
         return f"<Inquiry id={self.id} status={self.status}>"

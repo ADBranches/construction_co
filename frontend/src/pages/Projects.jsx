@@ -15,7 +15,7 @@ function Projects() {
       .get("/api/v1/projects")
       .then((data) => {
         if (isMounted) {
-          setProjects(data);
+          setProjects(data?.items || []);
           setLoading(false);
         }
       })
@@ -123,27 +123,24 @@ function Projects() {
                           {project.description}
                         </p>
                       )}
+                    </div>
 
-                      {/* Meta row */}
-                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[var(--brand-contrast)]/70">
-                        {project.category && (
-                          <span className="inline-flex items-center rounded-full bg-[var(--brand-green)]/5 px-2 py-1 text-[10px] font-medium text-[var(--brand-green)]">
-                            {project.category}
-                          </span>
-                        )}
-                        {project.client && (
-                          <span className="inline-flex items-center rounded-full bg-[var(--brand-contrast)]/5 px-2 py-1 text-[10px] font-medium">
-                            Client: {project.client}
-                          </span>
-                        )}
-                      </div>
+                    {/* Meta row */}
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[var(--brand-contrast)]/70">
+                      {project.client_name && (
+                        <span className="inline-flex items-center rounded-full bg-[var(--brand-contrast)]/5 px-2 py-1 text-[10px] font-medium">
+                          Client: {project.client_name}
+                        </span>
+                      )}
                     </div>
 
                     {/* Footer */}
                     <div className="mt-4 flex items-center justify-between border-t border-[var(--brand-contrast)]/10 pt-3">
                       <p className="text-[11px] text-[var(--brand-contrast)]/60">
-                        {project.year
-                          ? `Year: ${project.year}`
+                        {project.start_date
+                          ? `Year: ${new Date(
+                              project.start_date
+                            ).getFullYear()}`
                           : "Ongoing field support included."}
                       </p>
                       <span className="inline-flex items-center text-[11px] font-semibold text-[var(--brand-green)] group-hover:text-[var(--brand-yellow)] transition-colors">

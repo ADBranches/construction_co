@@ -1,14 +1,16 @@
+# app/config.py
 from functools import lru_cache
-from typing import List
+from typing import List  # you can drop this and use built-in list[...] if you want
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import AnyHttpUrl, field_validator
 
-
+from dotenv import load_dotenv 
+load_dotenv() 
 class Settings(BaseSettings):
     # App metadata
     app_name: str = "Construction Backend"
-    app_env: str = "development"  # can be: development | docker | production
+    app_env: str = "development"  # development | docker | production
     backend_port: int = 8000
 
     # Database URLs for multi-environment setup
@@ -16,15 +18,19 @@ class Settings(BaseSettings):
     database_url_docker: str | None = None
 
     # JWT auth configuration
-    jwt_secret_key: str =""
+    jwt_secret_key: str = ""
     jwt_algorithm: str = "HS256"
 
     # CORS settings
-    cors_origins: List[AnyHttpUrl] | List[str] = []
+    cors_origins: List[AnyHttpUrl] | List[str] = []  # or: list[AnyHttpUrl] | list[str]
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    # 🔁 NEW Pydantic v2-style config
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        # optional: uncomment if you want to forbid unknown env vars
+        # extra="forbid",
+    )
 
     # ░░░░░░░░░░░░░░░░░░░░░
     #   AUTO-SELECT DB URL

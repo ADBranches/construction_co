@@ -1,20 +1,22 @@
 // src/components/layout/Footer.jsx
 import { Link } from "react-router-dom";
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Facebook,
+  Twitter,
+  Instagram,
   Linkedin,
   ArrowRight,
   Shield,
   Award,
-  Globe
+  Globe,
+  Heart,
 } from "lucide-react";
+import FooterNewsletter from "../FooterNewsletter";
 
-function Footer() {
+export default function Footer() {
   const year = new Date().getFullYear();
 
   const quickLinks = [
@@ -23,231 +25,215 @@ function Footer() {
     { name: "Projects", path: "/projects" },
     { name: "About Us", path: "/about" },
     { name: "Contact", path: "/contact" },
-    { name: "Get Quote", path: "/quote" }
+    { name: "Get Quote", path: "/quote" },
   ];
 
-  const services = [
+  const coreServices = [
     "Smart Farm Systems",
     "Biogas Installation",
     "Livestock Housing",
     "Farm Construction",
     "Civil Works",
-    "Renewable Energy"
+    "Renewable Energy",
+    "Precision Irrigation",
+    "Solar Solutions",
   ];
 
   const contactInfo = [
-    {
-      icon: Phone,
-      text: "+256 783 111 015",
-      href: "tel:+256783111015"
-    },
-    {
-      icon: Mail,
-      text: "briskfarmsolutions@gmail.com",
-      href: "mailto:briskfarmsolutions@gmail.com"
-    },
-    {
-      icon: MapPin,
-      text: "Serving Nationwide Across Uganda",
-      href: "#"
-    }
+    { icon: Phone, text: "+256 783 111 015", href: "tel:+256783111015" },
+    { icon: Mail, text: "briskfarmsolutions@gmail.com", href: "mailto:briskfarmsolutions@gmail.com" },
+    { icon: MapPin, text: "Nationwide Across Uganda", href: "#" },
   ];
 
   const socialLinks = [
     { icon: Facebook, href: "#", label: "Facebook" },
     { icon: Twitter, href: "#", label: "Twitter" },
     { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" }
+    { icon: Linkedin, href: "#", label: "LinkedIn" },
   ];
 
   return (
-    <footer className="bg-gradient-to-b from-[#001f17] to-[#003023] text-white mt-20">
-      {/* Top Pattern */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_#ffffff09,_transparent_60%)]" />
-      </div>
+    <footer className="relative bg-gradient-to-b from-[#001a14] to-[#003023] text-white overflow-hidden">
+      {/* Soft top fade */}
+      <div className="h-20 bg-gradient-to-b from-transparent to-[#001a14]/60" />
 
-      {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-8">
-          {/* Company Info */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-r from-[#f05010] to-[#ff6b35] rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">B</span>
+      <div className="relative">
+        {/* Subtle background texture */}
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_25%_70%,#83c44133_0%,transparent_50%),radial-gradient(circle_at_80%_20%,#f0501033_0%,transparent_55%)] pointer-events-none" />
+
+        <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-20">
+          {/* GRID: About | Quick Links | Contact */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-14 lg:gap-16">
+
+            {/* ABOUT SECTION */}
+            <div className="lg:col-span-5">
+              {/* Logo + Title */}
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 bg-gradient-to-br from-[#f05010] to-[#ff6b35] rounded-2xl flex items-center justify-center shadow-xl">
+                  <span className="text-white font-black text-3xl">B</span>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight">
+                    Brisk Farm Solutions
+                  </h3>
+                  <p className="text-white/60 text-sm md:text-base mt-1">
+                    & Construction Company
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-bold">Brisk Farm Solutions</h3>
-                <p className="text-sm text-white/70">&amp; Construction Company</p>
+
+              {/* Description */}
+              <p className="text-white/85 text-base md:text-lg leading-relaxed mb-10 max-w-xl">
+                We deliver innovative, sustainable farm infrastructure and construction
+                solutions across Uganda — blending modern engineering with practical,
+                future-ready design.
+              </p>
+
+              {/* TRUST BADGES */}
+              <div className="flex flex-wrap gap-4 mb-12">
+                {[
+                  { icon: Shield, text: "Certified Engineers", color: "#83c441" },
+                  { icon: Award, text: "5-Star Rated", color: "#f05010" },
+                  { icon: Globe, text: "Nationwide Reach", color: "#83c441" },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 bg-white/10 border border-white/10 backdrop-blur-sm rounded-xl px-5 py-3"
+                  >
+                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                    <span className="text-sm font-medium">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* SOCIAL LINKS */}
+              <div className="flex items-center gap-6">
+                <span className="text-white/80 font-medium">Follow Us</span>
+                <div className="flex gap-4">
+                  {socialLinks.map((social, i) => {
+                    const Icon = social.icon;
+                    return (
+                      <a
+                        key={i}
+                        href={social.href}
+                        aria-label={social.label}
+                        className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+                      >
+                        <Icon className="w-6 h-6" />
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-            
-            <p className="text-white/80 leading-relaxed mb-6 max-w-xl">
-              We combine modern engineering with practical innovation to deliver 
-              sustainable farm systems and construction solutions across Uganda. 
-              From biogas installations to complete farm infrastructure, we build 
-              foundations for sustainable growth.
-            </p>
 
-            {/* Trust Badges */}
-            <div className="flex flex-wrap gap-4 mb-8">
-              <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
-                <Shield className="w-4 h-4 text-[#83c441]" />
-                <span className="text-xs">Certified Engineers</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
-                <Award className="w-4 h-4 text-[#f05010]" />
-                <span className="text-xs">5-Star Rated</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
-                <Globe className="w-4 h-4 text-[#83c441]" />
-                <span className="text-xs">Nationwide Service</span>
-              </div>
+            {/* QUICK LINKS */}
+            <div className="lg:col-span-3">
+              <h4 className="text-xl md:text-2xl font-bold mb-8 relative inline-block">
+                Quick Links
+                <span className="absolute -bottom-2 left-0 w-12 h-1 bg-[#f05010] rounded-full" />
+              </h4>
+
+              <ul className="space-y-5">
+                {quickLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      to={link.path}
+                      className="group flex items-center gap-3 text-white/85 hover:text-white text-lg transition-all"
+                    >
+                      <ArrowRight className="w-4 h-4 text-[#83c441] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Social Links */}
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-white/70">Follow us:</span>
-              <div className="flex gap-3">
-                {socialLinks.map((social, index) => {
-                  const Icon = social.icon;
+            {/* CONTACT + NEWSLETTER */}
+            <div className="lg:col-span-4">
+              <h4 className="text-xl md:text-2xl font-bold mb-8 relative inline-block">
+                Get in Touch
+                <span className="absolute -bottom-2 left-0 w-12 h-1 bg-[#83c441] rounded-full" />
+              </h4>
+
+              <div className="space-y-6">
+                {contactInfo.map((info, i) => {
+                  const Icon = info.icon;
                   return (
                     <a
-                      key={index}
-                      href={social.href}
-                      aria-label={social.label}
-                      className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-all hover:scale-110 hover:text-[#f05010]"
+                      key={i}
+                      href={info.href}
+                      className="group flex items-center gap-4 hover:text-white transition-all"
                     >
-                      <Icon className="w-5 h-5" />
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#003023] to-[#004633] rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                        <Icon className="w-6 h-6 text-[#83c441]" />
+                      </div>
+                      <span className="text-lg text-white/90 group-hover:text-white">
+                        {info.text}
+                      </span>
                     </a>
                   );
                 })}
               </div>
+
+              {/* Newsletter */}
+              <div className="mt-12 pt-8 border-t border-white/10">
+                <p className="text-base font-medium mb-4">Stay Updated</p>
+                <FooterNewsletter />
+              </div>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-lg font-bold mb-6 relative inline-block">
-              Quick Links
-              <span className="absolute -bottom-2 left-0 w-8 h-0.5 bg-[#f05010] rounded-full" />
-            </h4>
-            <ul className="space-y-3">
-              {quickLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="group flex items-center gap-2 text-white/80 hover:text-white transition-colors"
-                  >
-                    <ArrowRight className="w-3 h-3 text-[#83c441] opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="text-sm">{link.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* CORE SERVICES */}
+          <div className="mt-20 pt-12 border-t border-white/10">
+            <p className="text-white/80 text-center font-semibold uppercase tracking-wider mb-8">
+              Our Core Services
+            </p>
 
-          {/* Contact Info */}
-          <div>
-            <h4 className="text-lg font-bold mb-6 relative inline-block">
-              Contact Us
-              <span className="absolute -bottom-2 left-0 w-8 h-0.5 bg-[#83c441] rounded-full" />
-            </h4>
-            <div className="space-y-4">
-              {contactInfo.map((info, index) => {
-                const Icon = info.icon;
-                return (
-                  <a
-                    key={index}
-                    href={info.href}
-                    className="flex items-start gap-3 group"
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#003023] to-[#004633] rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                      <Icon className="w-5 h-5 text-[#83c441]" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-white/90 group-hover:text-white transition-colors">
-                        {info.text}
-                      </p>
-                    </div>
-                  </a>
-                );
-              })}
-            </div>
-
-            {/* Newsletter Signup */}
-            <div className="mt-8">
-              <p className="text-sm font-semibold mb-3">Stay Updated</p>
-              <form className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm placeholder-white/50 focus:outline-none focus:border-[#83c441] transition-colors"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-[#f05010] to-[#ff6b35] text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+            <div className="flex flex-wrap justify-center gap-3 md:gap-4 max-w-5xl mx-auto">
+              {coreServices.map((service, i) => (
+                <span
+                  key={i}
+                  className="px-5 py-2.5 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white/90 transition-all duration-300 hover:scale-105"
                 >
-                  Join
-                </button>
-              </form>
+                  {service}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* BOTTOM BAR */}
+          <div className="mt-20 pt-10 border-t border-white/10">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-white/70 text-sm md:text-base">
+              <div className="text-center md:text-left space-y-1">
+                <p className="font-medium">
+                  © {year} Brisk Farm Solutions & Construction Company
+                </p>
+                <p className="text-white/50">
+                  All rights reserved • Registered in Uganda • URSB Certified
+                </p>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+                <a href="#" className="hover:text-white transition-all">Privacy Policy</a>
+                <a href="#" className="hover:text-white transition-all">Terms of Service</a>
+                <a href="#" className="hover:text-white transition-all">Cookie Policy</a>
+
+                <div className="flex items-center gap-2 text-white/80">
+                  Made with <Heart className="w-5 h-5 text-[#f05010]" /> in Uganda
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Services Tags */}
-        <div className="mt-12 pt-8 border-t border-white/10">
-          <p className="text-sm font-semibold mb-4 text-center">
-            Our Services Include:
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {services.map((service, index) => (
-              <span
-                key={index}
-                className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-xs text-white/80 hover:text-white transition-all cursor-pointer hover:scale-105"
-              >
-                {service}
-              </span>
-            ))}
-          </div>
+        {/* Decorative glow */}
+        <div className="absolute inset-x-0 bottom-0 h-64 pointer-events-none">
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f05010]/10 rounded-full blur-3xl -translate-x-1/3" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#83c441]/10 rounded-full blur-3xl translate-x-1/3" />
         </div>
-
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-white/10">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-center md:text-left">
-              <p className="text-xs text-white/60">
-                © {year} Brisk Farm Solutions &amp; Construction Company. All rights reserved.
-              </p>
-              <p className="text-xs text-white/60 mt-1">
-                Registered in Uganda | URSB Certified
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-white/60">
-              <a href="#" className="hover:text-white transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Terms of Service
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Cookie Policy
-              </a>
-              <span className="hidden md:inline">|</span>
-              <span className="text-white/40">Made with ❤️ for Uganda</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Decorative Elements */}
-      <div className="relative">
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-r from-[#f05010]/10 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-l from-[#83c441]/10 to-transparent rounded-full blur-3xl" />
       </div>
     </footer>
   );
 }
-
-export default Footer;

@@ -1,3 +1,4 @@
+// src/lib/auth.js
 import { apiRequest } from "./api";
 
 /**
@@ -83,6 +84,44 @@ function logout() {
 
 /**
  * ===============================
+ * API Header Helper
+ * ===============================
+ */
+function authHeader() {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+/**
+ * ===============================
+ * Current User Helpers (RBAC)
+ * ===============================
+ */
+async function getCurrentUser() {
+  const headers = authHeader();
+  if (!headers.Authorization) return null;
+
+  try {
+    const data = await apiRequest("/api/v1/auth/me", {
+      method: "GET",
+      headers,
+    });
+    return data;
+  } catch (err) {
+    // Token invalid/expired – clean up and force login next time
+    removeToken();
+    localStorage.removeItem(ADMIN_EMAIL_KEY);
+    return null;
+  }
+}
+
+function isAdmin(user) {
+  if (!user) return false;
+  return user.role === "admin" || user.is_superuser === true;
+}
+
+/**
+ * ===============================
  * Route Guard
  * ===============================
  */
@@ -95,17 +134,7 @@ function requireAdmin() {
 
 /**
  * ===============================
- * API Header Helper
- * ===============================
- */
-function authHeader() {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-/**
- * ===============================
- * NAMED EXPORTS (for direct imports)
+ * NAMED EXPORTS
  * ===============================
  */
 export {
@@ -116,6 +145,8 @@ export {
   requireAdmin,
   authHeader,
   isLoggedIn,
+  getCurrentUser,
+  isAdmin,
 };
 
 /**
@@ -131,6 +162,8 @@ const auth = {
   requireAdmin,
   authHeader,
   isLoggedIn,
+  getCurrentUser,
+  isAdmin,
 };
 
 export default auth;

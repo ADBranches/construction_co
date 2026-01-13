@@ -13,18 +13,18 @@ function AdminProjects() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch projects
   useEffect(() => {
     let mounted = true;
 
     async function fetchProjects() {
       try {
-        const data = await api.get("/api/v1/projects", {
+        const payload = await api.get("/api/v1/projects?limit=100", {
           headers: authHeader(),
         });
 
         if (mounted) {
-          setProjects(data);
+          const items = payload?.items || [];
+          setProjects(items);
         }
       } catch (err) {
         if (mounted) {

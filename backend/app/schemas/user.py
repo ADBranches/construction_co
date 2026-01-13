@@ -1,7 +1,10 @@
+# backend/app/schemas/user.py
 from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, ConfigDict
+
+from app.models.user import UserRole  # 👈 import
 
 
 class UserBase(BaseModel):
@@ -9,6 +12,7 @@ class UserBase(BaseModel):
     full_name: str | None = None
     is_active: bool = True
     is_superuser: bool = False
+    role: UserRole = UserRole.STAFF  # 👈 new
 
 
 class UserCreate(UserBase):
@@ -20,6 +24,7 @@ class UserUpdate(BaseModel):
     full_name: str | None = None
     is_active: bool | None = None
     is_superuser: bool | None = None
+    role: UserRole | None = None  # 👈 allow changing role
     password: str | None = None  # optional password change
 
 

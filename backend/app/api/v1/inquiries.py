@@ -1,5 +1,6 @@
 from uuid import UUID
 from datetime import date
+from sqlalchemy.exc import DataError
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -161,3 +162,56 @@ def update_inquiry(
     db.commit()
     db.refresh(inquiry)
     return inquiry
+
+# =====================================================
+# INQUIRY STATS (ADMIN)
+# =====================================================
+@router.get("/stats", response_model=dict)
+def inquiry_stats(
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin),
+):
+    """
+    Admin: summary stats for dashboard cards.
+    """
+    # Total inquiries (safe)
+    total = db.query(Inquiry).count()
+
+    # Per-status counts (defensive: handle enum/DB mismatches)
+    counts_by_status: dict[str, int] = {}
+    for status in InquiryStatus:
+        try:
+            counts_by_status[status.value] = (
+                db.query(Inquiry)
+                .filter(Inquiry.status == status)
+                .count()
+            )
+        except DataError:
+            # Enum value not present in DB type; keep API alive, report 0
+            db.rollback()
+            counts_by_status[status.value] = 0
+
+    # "Open-like" statuses: use all statuses except clearly closed ones,
+    # without hard-coding names that might not exist.
+    open_like_statuses = [
+        status
+        for status in InquiryStatus
+        if status.name not in {"WON", "LOST", "CLOSED", "ARCHIVED"}
+    ]
+
+    try:
+        open_count = (
+            db.query(Inquiry)
+            .filter(Inquiry.status.in_(open_like_statuses))
+            .count()
+        )
+    except DataError:
+        db.rollback()
+        open_count = 0
+
+    return {
+        "total": total,
+        "open": open_count,
+        "by_status": counts_by_status,
+    }
+

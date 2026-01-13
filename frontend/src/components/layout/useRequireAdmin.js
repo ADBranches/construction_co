@@ -1,14 +1,27 @@
 // src/components/layout/useRequireAdmin.js
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { isLoggedIn } from "../../lib/auth.js";
+import { getCurrentUser, isAdmin } from "../../lib/auth.js";
 
 export function useRequireAdmin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoggedIn()) {
-      navigate("/admin/login");
+    let cancelled = false;
+
+    async function check() {
+      const user = await getCurrentUser();
+      if (cancelled) return;
+
+      if (!user || !isAdmin(user)) {
+        navigate("/admin/login");
+      }
     }
+
+    check();
+
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 }
