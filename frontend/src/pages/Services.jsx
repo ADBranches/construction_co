@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import api from "../lib/apiClient";
 import Seo from "../seo/Seo";
+import ServiceCard from "../components/ServiceCard";
 
 function Services() {
   const [services, setServices] = useState([]);
@@ -14,16 +15,17 @@ function Services() {
     api
       .get("/api/v1/services")
       .then((data) => {
-        if (isMounted) {
-          setServices(data);
-          setLoading(false);
-        }
+        if (!isMounted) return;
+
+        // assuming backend returns a plain array
+        setServices(Array.isArray(data) ? data : data?.items || []);
+        setLoading(false);
       })
       .catch((err) => {
-        if (isMounted) {
-          setError(err.message || "Failed to load services.");
-          setLoading(false);
-        }
+        if (!isMounted) return;
+
+        setError(err.message || "Failed to load services.");
+        setLoading(false);
       });
 
     return () => {
@@ -146,21 +148,34 @@ function Services() {
 
           {!loading && !error && services.length > 0 && (
             <div className="grid gap-4 md:grid-cols-2">
-              {services.map((service) => (
-                <article
+              {services.map((service, index) => (
+                <ServiceCard
                   key={service.id}
-                  className="rounded-2xl border border-[var(--brand-green)]/20 bg-white p-4 shadow-sm"
-                >
-                  <h3 className="text-sm font-semibold text-[var(--brand-green)]">
-                    {service.name}
-                  </h3>
-
-                  {service.short_description && (
-                    <p className="mt-1 text-xs text-[var(--brand-contrast)]/80">
-                      {service.short_description}
-                    </p>
-                  )}
-                </article>
+                  // backend fields
+                  title={service.name}
+                  description={
+                    service.short_description || service.description || ""
+                  }
+                  tagline={service.tagline}
+                  features={[
+                    service.highlight_1,
+                    service.highlight_2,
+                    service.highlight_3,
+                  ].filter(Boolean)}
+                  // map category to color (fallback emerald)
+                  color={
+                    service.category === "biogas"
+                      ? "emerald"
+                      : service.category === "waste-management"
+                      ? "orange"
+                      : service.category === "capacity-building"
+                      ? "blue"
+                      : "emerald"
+                  }
+                  delay={index * 0.05}
+                  // pass slug so card can link to /services/:slug
+                  slug={service.slug}
+                />
               ))}
             </div>
           )}

@@ -42,6 +42,21 @@ class Service(Base):
         Text,
         nullable=True,
     )
+    # Optional marketing fields for richer frontend cards/pages
+    tagline: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    hero_image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    icon: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    highlight_1: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    highlight_2: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    highlight_3: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
 
     is_active: Mapped[bool] = mapped_column(
         Boolean,

@@ -7,7 +7,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import StatCard from "../../components/admin/StatCard";
 
 export default function AdminDashboard() {
-  useRequireAdmin(); // 🔐 Centralized route protection
+  useRequireAdmin(); // Centralized route protection
 
   const [stats, setStats] = useState({
     services: 0,
@@ -24,19 +24,17 @@ export default function AdminDashboard() {
       try {
         const headers = authHeader();
 
-        const [services, projectStats, inquiryStats] = await Promise.all([
-          // Public, but we still send auth in case you secure later
-          api.get("/api/v1/services", { headers }),
-          api.get("/api/v1/projects/stats", { headers }),
-          api.get("/api/v1/inquiries/stats", { headers }),
-        ]);
+        // New unified endpoint
+        const data = await api.get("/api/v1/stats/", { headers });
 
         if (!mounted) return;
 
         setStats({
-          services: Array.isArray(services) ? services.length : 0,
-          projects: projectStats?.total ?? 0,
-          openInquiries: inquiryStats?.open ?? inquiryStats?.total ?? 0,
+          services: data.services ?? 0,
+          projects: data.projects ?? 0,
+          openInquiries: data.inquiries ?? 0,
+          testimonials: data.testimonials ?? 0,
+          subscribers: data.subscribers ?? 0,
         });
       } catch (error) {
         console.error("Failed to load dashboard stats", error);

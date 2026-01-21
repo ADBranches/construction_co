@@ -57,9 +57,16 @@ def test_auth_me_includes_role():
         headers={"Authorization": f"Bearer {token}"},
     )
     assert resp.status_code == 200
+
     data = resp.json()
+
+    # Existing checks
     assert data["email"] == "admin@example.com"
     assert data["role"] == "admin"
+
+    # ✅ REQUIRED ADDITIONS
+    assert "is_superuser" in data
+    assert data["is_superuser"] is False   # matches seeded user
 
 
 def test_admin_can_create_staff_user():
@@ -114,3 +121,4 @@ def test_staff_cannot_create_service():
         headers={"Authorization": f"Bearer {token}"},
     )
     assert resp.status_code == 403
+

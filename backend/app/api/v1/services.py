@@ -1,4 +1,5 @@
 # backend/app/api/v1/services.py
+
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -8,9 +9,19 @@ from app.dependencies import get_db, get_current_admin
 from app.models.service import Service
 from app.schemas.service import ServiceOut, ServiceCreate, ServiceUpdate
 
+# 🔹 Import service layer logic
+from app.services.service_service import (
+    create_service as svc_create_service,
+    update_service as svc_update,
+    delete_service as svc_delete,
+)
+
 router = APIRouter(prefix="/services", tags=["Services"])
 
 
+# ---------------------------------------------------------
+# List Services (Public)
+# ---------------------------------------------------------
 @router.get("", response_model=list[ServiceOut])
 def list_services(
     db: Session = Depends(get_db),
@@ -18,12 +29,12 @@ def list_services(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
 ):
-    """
-    Public: list services (optionally filter by is_active).
-    """
     query = db.query(Service)
 
-    if is_active is not None:
+    if is_active is None:
+        # Default public behaviour → only show active services
+        query = query.filter(Service.is_active == True)  # noqa: E712
+    else:
         query = query.filter(Service.is_active == is_active)
 
     services = (
@@ -32,17 +43,18 @@ def list_services(
         .limit(limit)
         .all()
     )
+
     return services
 
 
+# ---------------------------------------------------------
+# Get Service By Slug (Public)
+# ---------------------------------------------------------
 @router.get("/{slug}", response_model=ServiceOut)
 def get_service_by_slug(
     slug: str,
     db: Session = Depends(get_db),
 ):
-    """
-    Public: get a service by slug.
-    """
     service = db.query(Service).filter(Service.slug == slug).first()
     if not service:
         raise HTTPException(
@@ -52,16 +64,16 @@ def get_service_by_slug(
     return service
 
 
+# ---------------------------------------------------------
+# Create Service (Admin)
+# ---------------------------------------------------------
 @router.post("", response_model=ServiceOut, status_code=status.HTTP_201_CREATED)
 def create_service(
     service_in: ServiceCreate,
     db: Session = Depends(get_db),
     admin=Depends(get_current_admin),
 ):
-    """
-    Admin: create a new service.
-    """
-    # Ensure unique slug
+    # Ensure unique slug before delegating to service layer
     existing = db.query(Service).filter(Service.slug == service_in.slug).first()
     if existing:
         raise HTTPException(
@@ -69,13 +81,15 @@ def create_service(
             detail="Slug already in use.",
         )
 
-    service = Service(**service_in.model_dump())
-    db.add(service)
-    db.commit()
-    db.refresh(service)
-    return service
+    try:
+        return svc_create_service(db, service_in)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
+# ---------------------------------------------------------
+# Update Service (Admin)
+# ---------------------------------------------------------
 @router.put("/{service_id}", response_model=ServiceOut)
 def update_service(
     service_id: UUID,
@@ -83,41 +97,25 @@ def update_service(
     db: Session = Depends(get_db),
     admin=Depends(get_current_admin),
 ):
-    """
-    Admin: update an existing service.
-    """
-    service = db.query(Service).filter(Service.id == service_id).first()
-    if not service:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Service not found.",
-        )
-
-    update_data = service_in.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(service, field, value)
-
-    db.commit()
-    db.refresh(service)
-    return service
+    try:
+        return svc_update(db, service_id, service_in)
+    except ValueError as e:
+        # Service layer raises ValueError when service_id not found
+        raise HTTPException(status_code=404, detail=str(e))
 
 
+# ---------------------------------------------------------
+# Delete Service (Admin)
+# ---------------------------------------------------------
 @router.delete("/{service_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_service(
     service_id: UUID,
     db: Session = Depends(get_db),
     admin=Depends(get_current_admin),
 ):
-    """
-    Admin: delete a service.
-    """
-    service = db.query(Service).filter(Service.id == service_id).first()
-    if not service:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Service not found.",
-        )
+    try:
+        svc_delete(db, service_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
-    db.delete(service)
-    db.commit()
     return None

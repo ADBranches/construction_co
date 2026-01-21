@@ -22,13 +22,10 @@ from .user import User  # Import the User class
 
 
 class InquiryStatus(str, PyEnum):
-    NEW = "NEW"
-    IN_REVIEW = "IN_REVIEW"
-    CONTACTED = "CONTACTED"
-    PROPOSAL_SENT = "PROPOSAL_SENT"
-    WON = "WON"
-    LOST = "LOST"
-
+    NEW = "new"
+    IN_REVIEW = "in_review"
+    QUOTED = "quoted"
+    CLOSED = "closed"
 
 class Inquiry(Base):
     __tablename__ = "inquiries"
@@ -108,6 +105,12 @@ class Inquiry(Base):
     assigned_to_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    
+    # Admin-only notes, never shown on public site
+    internal_notes: Mapped[str | None] = mapped_column(
+        Text,
         nullable=True,
     )
 

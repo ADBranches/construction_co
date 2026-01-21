@@ -28,15 +28,13 @@ export default function Footer() {
     { name: "Get Quote", path: "/quote" },
   ];
 
-  const coreServices = [
-    "Smart Farm Systems",
-    "Biogas Installation",
-    "Livestock Housing",
-    "Farm Construction",
-    "Civil Works",
-    "Renewable Energy",
-    "Precision Irrigation",
-    "Solar Solutions",
+    const coreServices = [
+    "Animal Production Consultancy (Dairy, Beef, Poultry, Small Ruminants)",
+    "Farm & Household Waste Management",
+    "Biodigester Installation (Fixed Dome & Prefabricated)",
+    "Supply of Biogas Appliances",
+    "Capacity Building – Livestock & Biodigester Management",
+    "Pasture Establishment & Management",
   ];
 
   const contactInfo = [

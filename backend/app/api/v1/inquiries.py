@@ -47,64 +47,61 @@ Message: {inquiry.message}
 
     return inquiry
 
-
 # =====================================================
 # LIST INQUIRIES (ADMIN)
 # =====================================================
-@router.get("", response_model=dict)
+@router.get("", response_model=list[InquiryOut])
 def list_inquiries(
     db: Session = Depends(get_db),
     admin=Depends(get_current_admin),
 
-    # Pagination
+    # Pagination (kept, even if tests don't use it)
     page: int = Query(1, ge=1),
-    limit: int = Query(10, ge=1, le=100),
+    limit: int = Query(50, ge=1, le=200),
 
     # Filters
     status: InquiryStatus | None = Query(None),
-    start_date: date | None = Query(None),
-    end_date: date | None = Query(None),
+    source: str | None = Query(None),
+    search: str | None = Query(None),
 ):
     """
-    Admin: List inquiries with filtering, sorting & pagination.
-    """
+    Admin: list inquiries with optional filters.
 
+    - status: NEW | IN_REVIEW | QUOTED | ...
+    - source: quote | contact | website | referral | ...
+    - search: matches full_name, email, or message
+    """
     query = db.query(Inquiry)
 
-    # -----------------------
-    # Filters
-    # -----------------------
+    # Status filter
     if status is not None:
         query = query.filter(Inquiry.status == status)
 
-    if start_date:
-        query = query.filter(Inquiry.created_at >= start_date)
+    # Source filter
+    if source:
+        query = query.filter(Inquiry.source == source)
 
-    if end_date:
-        query = query.filter(Inquiry.created_at <= end_date)
+    # Text search (case-insensitive on name/email/message)
+    if search:
+        like = f"%{search.lower()}%"
+        query = query.filter(
+            (Inquiry.full_name.ilike(like))
+            | (Inquiry.email.ilike(like))
+            | (Inquiry.message.ilike(like))
+        )
 
-    # -----------------------
-    # Sorting
-    # -----------------------
+    # Newest first
     query = query.order_by(Inquiry.created_at.desc())
 
-    # -----------------------
-    # Pagination
-    # -----------------------
-    total = query.count()
-    items = (
+    # Pagination (still applied, but we just return the list)
+    inquiries = (
         query
         .offset((page - 1) * limit)
         .limit(limit)
         .all()
     )
 
-    return {
-        "total": total,
-        "page": page,
-        "limit": limit,
-        "items": items,
-    }
+    return inquiries
 
 
 # =====================================================
@@ -193,10 +190,11 @@ def inquiry_stats(
 
     # "Open-like" statuses: use all statuses except clearly closed ones,
     # without hard-coding names that might not exist.
+    # "Open-like" statuses: use all non-closed statuses
     open_like_statuses = [
         status
         for status in InquiryStatus
-        if status.name not in {"WON", "LOST", "CLOSED", "ARCHIVED"}
+        if status not in {InquiryStatus.CLOSED}
     ]
 
     try:
@@ -209,9 +207,14 @@ def inquiry_stats(
         db.rollback()
         open_count = 0
 
+    # NEW count (lowercase enum now)
+    new_count = counts_by_status.get(InquiryStatus.NEW.value, 0)
+
     return {
         "total": total,
         "open": open_count,
+        "new": new_count,
         "by_status": counts_by_status,
     }
+
 

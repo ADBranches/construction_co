@@ -1,10 +1,11 @@
 # app/api/v1/subscribers.py
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_db, get_current_admin
+from app.database import get_db
+from app.dependencies import get_current_admin
 from app.models.subscriber import Subscriber
-from app.schemas.subscriber import SubscriberCreate, SubscriberOut
+from app.schemas.subscriber import SubscriberOut, SubscriberCreate
 
 router = APIRouter(prefix="/subscribers", tags=["Subscribers"])
 
@@ -15,24 +16,26 @@ def create_subscriber(
     db: Session = Depends(get_db),
 ):
     """
-    Public: add a new email subscriber.
+    Public: add a newsletter subscriber.
 
-    Idempotent: if email already exists, return existing subscriber instead
-    of raising an error, to avoid annoying users.
+    - Normalizes email (lowercase + trim)
+    - Idempotent: if email already exists, returns existing subscriber.
     """
+    email_norm = subscriber_in.email.lower().strip()
+
     existing = (
         db.query(Subscriber)
-        .filter(Subscriber.email == subscriber_in.email)
+        .filter(Subscriber.email.ilike(email_norm))
         .first()
     )
     if existing:
         return existing
 
-    subscriber = Subscriber(email=subscriber_in.email)
-    db.add(subscriber)
+    sub = Subscriber(email=email_norm)
+    db.add(sub)
     db.commit()
-    db.refresh(subscriber)
-    return subscriber
+    db.refresh(sub)
+    return sub
 
 
 @router.get("", response_model=list[SubscriberOut])
@@ -43,7 +46,7 @@ def list_subscribers(
     limit: int = Query(100, ge=1, le=500),
 ):
     """
-    Admin: list subscribers with simple pagination.
+    Admin-only: list newsletter subscribers (newest first).
     """
     subscribers = (
         db.query(Subscriber)

@@ -14,8 +14,11 @@ export function useRequireAdmin() {
       if (cancelled) return;
 
       if (!user || !isAdmin(user)) {
+        localStorage.removeItem("role");
+        localStorage.removeItem("is_superuser");
         navigate("/admin/login");
       }
+
     }
 
     check();

@@ -7,6 +7,13 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 
+const STATUS_OPTIONS = [
+  { value: "planned", label: "Planned" },
+  { value: "ongoing", label: "Ongoing" },
+  { value: "completed", label: "Completed" },
+  { value: "on_hold", label: "On hold" },
+];
+
 function AdminProjectEdit() {
   useRequireAdmin();
 
@@ -15,29 +22,30 @@ function AdminProjectEdit() {
 
   const [project, setProject] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [feedback, setFeedback] = useState("");
+  const [error, setError] = useState("");
 
-  // Load project
+  // Load project by slug (public endpoint)
   useEffect(() => {
-    let mounted = true;
+    let isMounted = true;
 
     async function fetchProject() {
       try {
-        const data = await api.get(`/api/v1/projects/${slug}`, {
-          headers: authHeader(),
-        });
-
-        if (mounted) setProject(data);
+        const data = await api.get(`/api/v1/projects/${slug}`);
+        if (!isMounted) return;
+        setProject(data);
       } catch (err) {
-        if (mounted) navigate("/admin/projects");
+        if (!isMounted) return;
+        setError(err.message || "Failed to load project.");
+        // optional: redirect if not found
+        // navigate("/admin/projects");
       }
     }
 
     fetchProject();
     return () => {
-      mounted = false;
+      isMounted = false;
     };
-  }, [slug, navigate]);
+  }, [slug]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -47,31 +55,34 @@ function AdminProjectEdit() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!project) return;
 
     setSaving(true);
-    setFeedback("");
+    setError("");
 
+    // 🔹 Align with ProjectUpdate / test payload shape
     const payload = {
       name: project.name,
       slug: project.slug,
-      description: project.description,
       location: project.location,
       client_name: project.client_name,
-      budget_amount: project.budget_amount,
-      status: project.status,
-      is_featured: project.is_featured,
+      budget: project.budget,
+      status: project.status, // "planned" | "ongoing" | "completed" | "on_hold"
+      is_featured: !!project.is_featured,
+      short_description: project.short_description,
+      description: project.description,
+      hero_image_url: project.hero_image_url,
     };
 
     try {
       await api.put(`/api/v1/projects/${project.id}`, payload, {
         headers: authHeader(),
       });
-      setFeedback("Project updated successfully.");
+      navigate("/admin/projects");
     } catch (err) {
-      setFeedback(err.message || "Failed to update project.");
+      setError(err.message || "Failed to save project.");
     } finally {
       setSaving(false);
     }
@@ -83,13 +94,17 @@ function AdminProjectEdit() {
         <p className="text-xs text-[var(--brand-contrast)]/70">
           Loading project...
         </p>
+        {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
+      <form
+        onSubmit={handleSave}
+        className="space-y-6 max-w-3xl rounded-2xl border border-[var(--brand-green)]/15 bg-white p-5 shadow-sm"
+      >
         {/* Header */}
         <header>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--brand-yellow)]">
@@ -99,135 +114,172 @@ function AdminProjectEdit() {
             {project.name}
           </h1>
           <p className="mt-2 text-xs text-[var(--brand-contrast)]/80">
-            Update this Brisk project record as details, budget, or status
-            change.
+            Update portfolio details, project status, and featured flags for
+            this project.
           </p>
         </header>
 
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-[var(--brand-green)]/15 bg-white p-5 shadow-sm"
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
-                Name
-              </label>
-              <input
-                name="name"
-                value={project.name || ""}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
-                Slug
-              </label>
-              <input
-                name="slug"
-                value={project.slug || ""}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
-                Location
-              </label>
-              <input
-                name="location"
-                value={project.location || ""}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
-                Client name
-              </label>
-              <input
-                name="client_name"
-                value={project.client_name || ""}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
-              />
-            </div>
+        {/* Row 1: Name + Slug */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
+              Name
+            </label>
+            <input
+              name="name"
+              value={project.name || ""}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
+              required
+            />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
-              Description
+              Slug
             </label>
-            <textarea
-              name="description"
-              value={project.description || ""}
+            <input
+              name="slug"
+              value={project.slug || ""}
               onChange={handleChange}
-              rows={4}
+              className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Row 2: Location / Client / Budget */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
+              Location
+            </label>
+            <input
+              name="location"
+              value={project.location || ""}
+              onChange={handleChange}
               className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <div>
-              <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
-                Budget (UGX)
-              </label>
-              <input
-                type="number"
-                name="budget_amount"
-                value={project.budget_amount || ""}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
+              Client Name
+            </label>
+            <input
+              name="client_name"
+              value={project.client_name || ""}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
+            />
+          </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
-                Status
-              </label>
-              <select
-                name="status"
-                value={project.status || "ONGOING"}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
-              >
-                <option value="PLANNED">PLANNED</option>
-                <option value="ONGOING">ONGOING</option>
-                <option value="COMPLETED">COMPLETED</option>
-                <option value="ON_HOLD">ON_HOLD</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
+              Budget
+            </label>
+            <input
+              name="budget"
+              value={project.budget || ""}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
+              placeholder="e.g. 50M UGX"
+            />
+          </div>
+        </div>
 
-            <label className="mt-5 flex items-center gap-2 text-xs font-semibold text-[var(--brand-contrast)]">
+        {/* Status + Featured + Hero Image */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
+              Status
+            </label>
+            <select
+              name="status"
+              value={project.status || "ongoing"}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-white px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
+            >
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-end">
+            <label className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--brand-contrast)]">
               <input
                 type="checkbox"
                 name="is_featured"
-                checked={project.is_featured || false}
+                checked={!!project.is_featured}
                 onChange={handleChange}
-                className="h-4 w-4 rounded border-[var(--brand-contrast)]/30 text-[var(--brand-green)]"
+                className="rounded border-[var(--brand-contrast)]/30"
               />
-              Featured project
+              Featured case study
             </label>
           </div>
 
+          <div>
+            <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
+              Hero Image URL (optional)
+            </label>
+            <input
+              name="hero_image_url"
+              value={project.hero_image_url || ""}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
+              placeholder="https://..."
+            />
+          </div>
+        </div>
+
+        {/* Short description */}
+        <div>
+          <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
+            Short Description
+          </label>
+          <input
+            name="short_description"
+            value={project.short_description || ""}
+            onChange={handleChange}
+            className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
+            placeholder="One-line summary for cards."
+          />
+        </div>
+
+        {/* Full description */}
+        <div>
+          <label className="block text-xs font-semibold text-[var(--brand-contrast)]">
+            Detailed Description
+          </label>
+          <textarea
+            name="description"
+            rows={5}
+            value={project.description || ""}
+            onChange={handleChange}
+            className="mt-1 w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)] resize-none"
+            placeholder="Include system details, scope, and results..."
+          />
+        </div>
+
+        {error && <p className="text-xs text-red-600">{error}</p>}
+
+        <div className="flex items-center gap-3">
           <PrimaryButton type="submit" loading={saving}>
             {saving ? "Saving..." : "Save Changes"}
           </PrimaryButton>
 
-          {feedback && (
-            <p className="mt-2 text-xs text-[var(--brand-contrast)]/80">
-              {feedback}
-            </p>
-          )}
-        </form>
-      </div>
+          <button
+            type="button"
+            onClick={() => navigate("/admin/projects")}
+            className="text-xs font-semibold text-[var(--brand-contrast)]/70 hover:underline"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
     </AdminLayout>
   );
 }

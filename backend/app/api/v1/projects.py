@@ -15,7 +15,6 @@ from app.schemas.project import (
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
-
 # =====================================================
 # LIST PROJECTS (PUBLIC)
 # =====================================================
@@ -26,7 +25,11 @@ def list_projects(
     limit: int = Query(10, ge=1, le=100),
     status: ProjectStatus | None = Query(None),
     service_slug: str | None = Query(None),
-    featured: bool | None = Query(None),
+    is_featured: bool | None = Query(
+        None,
+        alias="featured",
+        description="Filter by featured projects (true/false).",
+    ),
     sort: str | None = Query(
         None,
         description="Sort by: newest | oldest | featured",
@@ -34,6 +37,7 @@ def list_projects(
 ):
     """
     Public: List projects with filtering, sorting, and pagination.
+    MUST return a wrapper object to satisfy test_public_api.py.
     """
 
     query = db.query(Project)
@@ -42,8 +46,8 @@ def list_projects(
     if status is not None:
         query = query.filter(Project.status == status)
 
-    if featured is not None:
-        query = query.filter(Project.is_featured == featured)
+    if is_featured is not None:
+        query = query.filter(Project.is_featured == is_featured)
 
     if service_slug:
         query = (
@@ -73,14 +77,16 @@ def list_projects(
         .all()
     )
 
+    pages = (total + limit - 1) // limit
+
+    # ---------- REQUIRED FORMAT FOR TEST ----------
     return {
+        "items": items,
         "total": total,
         "page": page,
+        "pages": pages,
         "limit": limit,
-        "items": items,
     }
-
-
 
 # =====================================================
 # PROJECT STATS (ADMIN)

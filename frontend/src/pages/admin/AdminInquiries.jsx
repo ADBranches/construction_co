@@ -4,235 +4,167 @@ import api from "../../lib/apiClient";
 import { authHeader } from "../../lib/auth";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
-import PrimaryButton from "../../components/ui/PrimaryButton";
-
-const STATUS_OPTIONS = ["NEW", "IN_REVIEW", "QUOTED", "CLOSED"];
+import InquiriesTable from "../../components/admin/InquiriesTable";
 
 function AdminInquiries() {
   useRequireAdmin();
 
   const [inquiries, setInquiries] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("NEW");
   const [loading, setLoading] = useState(true);
-  const [updatingId, setUpdatingId] = useState(null);
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [statusMap, setStatusMap] = useState({});
 
-    const loadInquiries = async () => {
-      setLoading(true);
-      setError("");
-      setMessage("");
+  // New filters for mini-CRM
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
-      const query =
-        statusFilter && statusFilter !== "ALL"
-          ? `?status=${encodeURIComponent(statusFilter)}&limit=100`
-          : "?limit=100";
+  const loadInquiries = async () => {
+    setLoading(true);
+    setError("");
 
-      try {
-        const payload = await api.get(`/api/v1/inquiries${query}`, {
-          headers: authHeader(),
-        });
+    try {
+      const params = new URLSearchParams();
 
-        const items = payload?.items || [];
-
-        setInquiries(items);
-
-        const initial = {};
-        items.forEach((inq) => {
-          initial[inq.id] = inq.status;
-        });
-        setStatusMap(initial);
-      } catch (err) {
-        setError(err.message || "Failed to load inquiries.");
-      } finally {
-        setLoading(false);
+      if (statusFilter !== "all") {
+        params.append("status", statusFilter);
       }
-    };
+
+      if (sourceFilter !== "all") {
+        params.append("source", sourceFilter);
+      }
+
+      if (search.trim()) {
+        params.append("search", search.trim());
+      }
+
+      // keep your old behavior: cap to 100, good for admin table
+      params.append("limit", "100");
+
+      const queryString = params.toString();
+      const path = queryString
+        ? `/api/v1/inquiries?${queryString}`
+        : "/api/v1/inquiries";
+
+      const payload = await api.get(path, {
+        headers: authHeader(),
+      });
+
+      // harmonized: support both array OR paginated { items: [...] }
+      const items = Array.isArray(payload) ? payload : payload?.items || [];
+      setInquiries(items);
+    } catch (err) {
+      setError(err.message || "Failed to load inquiries.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadInquiries();
-  }, [statusFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, sourceFilter, search]);
 
-  const handleUpdateStatus = async (id) => {
-    const newStatus = statusMap[id];
-    if (!newStatus) return;
-
-    setUpdatingId(id);
-    setMessage("");
-
+  const handleStatusChange = async (id, newStatus) => {
     try {
-      await api.patch(
-        `/api/v1/inquiries/${id}/status?status=${encodeURIComponent(
-          newStatus
-        )}`,
-        {},
+      // mini-CRM style: use InquiryUpdate via PUT
+      await api.put(
+        `/api/v1/inquiries/${id}`,
+        { status: newStatus },
         { headers: authHeader() }
       );
-
-      setInquiries((prev) =>
-        prev.map((inq) =>
-          inq.id === id ? { ...inq, status: newStatus } : inq
-        )
-      );
-
-      setMessage("Inquiry updated successfully.");
+      await loadInquiries();
     } catch (err) {
-      setMessage(err.message || "Failed to update inquiry.");
-    } finally {
-      setUpdatingId(null);
+      alert(err.message || "Failed to update status.");
+    }
+  };
+
+  const handleSaveNotes = async (id, notes) => {
+    try {
+      await api.put(
+        `/api/v1/inquiries/${id}`,
+        { internal_notes: notes },
+        { headers: authHeader() }
+      );
+      await loadInquiries();
+    } catch (err) {
+      alert(err.message || "Failed to save notes.");
     }
   };
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Header */}
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--brand-yellow)]">
-              Inquiries
-            </p>
-            <h1 className="mt-1 text-2xl font-bold text-[var(--brand-contrast)]">
-              Website Leads &amp; Requests
-            </h1>
-            <p className="mt-2 text-xs text-[var(--brand-contrast)]/80">
-              Review and update incoming inquiries from the Brisk public site –
-              quotes, contact messages, and project requests.
-            </p>
-          </div>
+        <header>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--brand-yellow)]">
+            Inquiries
+          </p>
+          <h1 className="mt-1 text-2xl font-bold text-[var(--brand-contrast)]">
+            Client Inquiries &amp; Quotes
+          </h1>
+          <p className="mt-2 max-w-xl text-xs text-[var(--brand-contrast)]/80">
+            View all requests from the website. Update statuses (NEW → IN_REVIEW
+            → QUOTED → CLOSED) and keep internal notes for your team.
+          </p>
+        </header>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--brand-contrast)]/70">
-              Filter:
-            </span>
+        {/* Filters */}
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap gap-2">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-full border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-1 text-xs outline-none focus:border-[var(--brand-green)]"
+              className="rounded-xl border border-[var(--brand-contrast)]/20 bg-white px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
             >
-              <option value="NEW">NEW</option>
-              <option value="IN_REVIEW">IN_REVIEW</option>
-              <option value="QUOTED">QUOTED</option>
-              <option value="CLOSED">CLOSED</option>
-              <option value="ALL">ALL</option>
+              <option value="all">All statuses</option>
+              <option value="new">New</option>
+              <option value="in_review">In review</option>
+              <option value="quoted">Quoted</option>
+              <option value="closed">Closed</option>
+            </select>
+
+            <select
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value)}
+              className="rounded-xl border border-[var(--brand-contrast)]/20 bg-white px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)]"
+            >
+              <option value="all">All sources</option>
+              <option value="quote">Quote page</option>
+              <option value="contact">Contact page</option>
             </select>
           </div>
-        </header>
 
-        {/* Status messages */}
+          <input
+            type="text"
+            placeholder="Search name, email, or message..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-3 py-2 text-xs outline-none focus:border-[var(--brand-green)] md:w-72"
+          />
+        </div>
+
+        {/* Table / states */}
         {loading && (
           <p className="text-xs text-[var(--brand-contrast)]/70">
             Loading inquiries...
           </p>
         )}
+
         {error && <p className="text-xs text-red-600">{error}</p>}
-        {message && !error && (
-          <p className="text-xs text-[var(--brand-contrast)]/80">{message}</p>
+
+        {!loading && !error && inquiries.length > 0 && (
+          <InquiriesTable
+            inquiries={inquiries}
+            onStatusChange={handleStatusChange}
+            onSaveNotes={handleSaveNotes}
+          />
         )}
 
-        {/* Table */}
-        {!loading && !error && (
-          <div className="overflow-x-auto rounded-2xl border border-[var(--brand-green)]/15 bg-white shadow-sm">
-            <table className="min-w-full border-separate border-spacing-0 text-left text-xs">
-              <thead className="bg-[var(--brand-green)]/5 text-[var(--brand-contrast)]/80">
-                <tr>
-                  <th className="px-4 py-3">Client</th>
-                  <th className="px-4 py-3">Contact</th>
-                  <th className="px-4 py-3">Request</th>
-                  <th className="px-4 py-3">Budget</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {inquiries.map((inq, idx) => (
-                  <tr
-                    key={inq.id}
-                    className={
-                      idx % 2 === 1 ? "bg-[var(--brand-green)]/3" : "bg-white"
-                    }
-                  >
-                    <td className="px-4 py-3 align-top">
-                      <div className="font-semibold text-[var(--brand-contrast)]">
-                        {inq.full_name || "-"}
-                      </div>
-                      <div className="text-[10px] text-[var(--brand-contrast)]/60">
-                        {inq.created_at &&
-                          new Date(inq.created_at).toLocaleString()}
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-3 text-[11px] text-[var(--brand-contrast)]/80">
-                      {inq.phone && <div>📞 {inq.phone}</div>}
-                      {inq.email && <div>✉️ {inq.email}</div>}
-                      {inq.location && (
-                        <div className="text-[10px]">📍 {inq.location}</div>
-                      )}
-                    </td>
-
-                    <td className="px-4 py-3 text-[11px] text-[var(--brand-contrast)]/80">
-                      {inq.project_type && (
-                        <div className="font-medium">{inq.project_type}</div>
-                      )}
-                      {inq.message && (
-                        <div className="mt-1 line-clamp-3 text-[10px]">
-                          {inq.message}
-                        </div>
-                      )}
-                    </td>
-
-                    <td className="px-4 py-3 text-[11px] text-[var(--brand-contrast)]/80">
-                      {inq.budget_range || "-"}
-                    </td>
-
-                    <td className="px-4 py-3 text-[11px]">
-                      <select
-                        value={statusMap[inq.id] || inq.status}
-                        onChange={(e) =>
-                          setStatusMap((prev) => ({
-                            ...prev,
-                            [inq.id]: e.target.value,
-                          }))
-                        }
-                        className="rounded-full border border-[var(--brand-contrast)]/20 bg-[#f6fef9] px-2 py-1 text-[11px] outline-none focus:border-[var(--brand-green)]"
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-
-                    <td className="px-4 py-3 text-right">
-                      <PrimaryButton
-                        type="button"
-                        className="px-3 py-1 text-[10px]"
-                        onClick={() => handleUpdateStatus(inq.id)}
-                        loading={updatingId === inq.id}
-                      >
-                        {updatingId === inq.id ? "Updating..." : "Update"}
-                      </PrimaryButton>
-                    </td>
-                  </tr>
-                ))}
-
-                {inquiries.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-6 text-center text-xs text-[var(--brand-contrast)]/70"
-                    >
-                      No inquiries found. Once visitors submit contact or quote
-                      forms, they will appear here.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        {!loading && !error && inquiries.length === 0 && (
+          <p className="text-xs text-[var(--brand-contrast)]/70">
+            No inquiries found for the current filters. Once visitors submit
+            contact or quote forms, they will appear here.
+          </p>
         )}
       </div>
     </AdminLayout>

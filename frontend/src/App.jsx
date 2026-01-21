@@ -9,6 +9,7 @@ import Projects from "./pages/Projects.jsx";
 import Quote from "./pages/Quote.jsx";
 import Contact from "./pages/Contact.jsx";
 import About from "./pages/About.jsx";
+import ServiceDetail from "./pages/ServiceDetail.jsx";  
 
 // Admin pages
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
@@ -26,9 +27,11 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/services/:slug" element={<ServiceDetail />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/quote" element={<Quote />} />
         <Route path="/contact" element={<Contact />} />
+
 
         {/* Admin */}
         <Route path="/admin/login" element={<AdminLogin />} />

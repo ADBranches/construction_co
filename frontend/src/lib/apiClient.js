@@ -15,13 +15,35 @@ async function request(path, options = {}) {
     ...options,
   });
 
+  // ⬇⬇⬇ replace your current `if (!resp.ok) { ... }` with this
   if (!resp.ok) {
-    const errorBody = await resp.text().catch(() => "");
-    throw new Error(
-      `API error ${resp.status} ${resp.statusText} – ${
-        errorBody || "no details"
-      }`,
-    );
+    let details = null;
+    let text = "";
+
+    try {
+      // try structured JSON first
+      details = await resp.json();
+    } catch {
+      // fall back to plain text
+      try {
+        text = await resp.text();
+      } catch {
+        text = "";
+      }
+    }
+
+    const message =
+      details?.detail ||
+      text ||
+      `Request failed with status ${resp.status}`;
+
+    const error = new Error(message);
+    error.status = resp.status;
+    error.details = details;
+    error.rawBody = text;
+
+    // We still throw, but now callers can branch on error.status
+    throw error;
   }
 
   if (resp.status === 204) return null;

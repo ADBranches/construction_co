@@ -18,27 +18,45 @@ router = APIRouter(prefix="/testimonials", tags=["Testimonials"])
 @router.get("", response_model=list[TestimonialOut])
 def list_testimonials(
     db: Session = Depends(get_db),
-    featured: bool | None = Query(
+    is_active: bool | None = Query(
+        True,
+        description="If set, filters by active flag. Defaults to only active.",
+    ),
+    is_featured: bool | None = Query(
         None,
         description="If set, filters to featured/non-featured testimonials.",
     ),
-    active_only: bool = Query(
-        True,
-        description="If true, returns only active testimonials.",
+    limit: int = Query(
+        20,
+        ge=1,
+        le=100,
+        description="Maximum number of testimonials to return.",
     ),
 ):
     """
-    Public: list testimonials, optionally filtered by featured/active flags.
+    Public: list testimonials.
+
+    - By default returns only active ones.
+    - Can filter by is_featured for homepage highlights.
     """
     query = db.query(Testimonial)
 
-    if active_only:
-        query = query.filter(Testimonial.is_active.is_(True))
+    # Active flag: True → only active, False → only inactive, None → ignore
+    if is_active is not None:
+        query = query.filter(Testimonial.is_active == is_active)
 
-    if featured is not None:
-        query = query.filter(Testimonial.is_featured == featured)
+    # Featured flag filter
+    if is_featured is not None:
+        query = query.filter(Testimonial.is_featured == is_featured)
 
-    testimonials = query.order_by(Testimonial.created_at.desc()).all()
+    testimonials = (
+        query.order_by(
+            Testimonial.display_order.asc(),
+            Testimonial.created_at.desc(),
+        )
+        .limit(limit)
+        .all()
+    )
     return testimonials
 
 

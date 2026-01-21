@@ -15,4 +15,3 @@ class TokenPayload(BaseModel):
 
     sub: str | None = None  # user ID
     exp: int | None = None
-

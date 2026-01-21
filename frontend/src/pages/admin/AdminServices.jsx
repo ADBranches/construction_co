@@ -5,6 +5,7 @@ import { authHeader } from "../../lib/auth";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
 import PrimaryButton from "../../components/ui/PrimaryButton";
+import Modal from "../../components/ui/Modal";
 
 function AdminServices() {
   useRequireAdmin();
@@ -21,6 +22,9 @@ function AdminServices() {
   });
   const [formMsg, setFormMsg] = useState("");
 
+  // 🔹 Edit modal state
+  const [editing, setEditing] = useState(null);
+
   const loadServices = async () => {
     setLoading(true);
     try {
@@ -28,6 +32,7 @@ function AdminServices() {
         headers: authHeader(),
       });
       setServices(data);
+      setError("");
     } catch (err) {
       setError(err.message || "Failed to load services.");
     } finally {
@@ -61,6 +66,40 @@ function AdminServices() {
       setFormMsg(err.message || "Failed to create service.");
     } finally {
       setCreating(false);
+    }
+  };
+
+  // 🔹 Delete a service
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/api/v1/services/${id}`, {
+        headers: authHeader(),
+      });
+      await loadServices();
+    } catch (err) {
+      setError(err.message || "Failed to delete service.");
+    }
+  };
+
+  // 🔹 Save edits
+  const handleSaveEdit = async () => {
+    if (!editing) return;
+
+    try {
+      // Only send editable fields, not the whole object
+      const payload = {
+        name: editing.name,
+        short_description: editing.short_description || "",
+      };
+
+      await api.put(`/api/v1/services/${editing.id}`, payload, {
+        headers: authHeader(),
+      });
+
+      setEditing(null);
+      await loadServices();
+    } catch (err) {
+      setError(err.message || "Failed to update service.");
     }
   };
 
@@ -165,6 +204,31 @@ function AdminServices() {
                     {service.short_description}
                   </p>
                 )}
+
+                {/* 🔹 Edit / Delete buttons */}
+                <div className="flex gap-3 mt-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEditing({
+                        id: service.id,
+                        name: service.name,
+                        short_description: service.short_description || "",
+                      })
+                    }
+                    className="text-xs px-3 py-1 rounded-xl bg-[var(--brand-yellow)] text-white"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(service.id)}
+                    className="text-xs px-3 py-1 rounded-xl bg-red-500 text-white"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
 
@@ -176,6 +240,43 @@ function AdminServices() {
             )}
           </div>
         )}
+
+        {/* 🔹 Edit Modal */}
+        <Modal open={!!editing} onClose={() => setEditing(null)}>
+          <h2 className="text-sm font-bold text-[var(--brand-contrast)]">
+            Edit Service
+          </h2>
+
+          <input
+            className="mt-2 w-full rounded-xl border border-[var(--brand-contrast)]/20 p-2 text-xs"
+            name="name"
+            placeholder="Name"
+            value={editing?.name || ""}
+            onChange={(e) =>
+              setEditing((prev) => ({ ...prev, name: e.target.value }))
+            }
+          />
+
+          <textarea
+            className="mt-2 w-full rounded-xl border border-[var(--brand-contrast)]/20 p-2 text-xs"
+            name="short_description"
+            placeholder="Short description"
+            value={editing?.short_description || ""}
+            onChange={(e) =>
+              setEditing((prev) => ({
+                ...prev,
+                short_description: e.target.value,
+              }))
+            }
+          />
+
+          <button
+            className="mt-4 bg-[var(--brand-green)] text-white px-4 py-2 rounded-xl text-xs"
+            onClick={handleSaveEdit}
+          >
+            Save Changes
+          </button>
+        </Modal>
       </div>
     </AdminLayout>
   );

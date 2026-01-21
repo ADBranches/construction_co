@@ -62,15 +62,22 @@ async function login(email, password) {
 
   const data = await apiRequest("/api/v1/auth/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: payload,
   });
 
   if (data?.access_token) {
     saveToken(data.access_token);
     setAdminEmail(email);
+
+    // 🔥 NEW: Fetch /auth/me to get role + is_superuser
+    const me = await apiRequest("/api/v1/auth/me", {
+      method: "GET",
+      headers: authHeader(),
+    });
+
+    localStorage.setItem("role", me.role);
+    localStorage.setItem("is_superuser", me.is_superuser ? "1" : "0");
   }
 
   return data;
@@ -106,19 +113,29 @@ async function getCurrentUser() {
       method: "GET",
       headers,
     });
+
+    // 🔥 Keep localStorage synced
+    localStorage.setItem("role", data.role);
+    localStorage.setItem("is_superuser", data.is_superuser ? "1" : "0");
+
     return data;
-  } catch (err) {
-    // Token invalid/expired – clean up and force login next time
+  } catch {
     removeToken();
-    localStorage.removeItem(ADMIN_EMAIL_KEY);
+    localStorage.removeItem("role");
+    localStorage.removeItem("is_superuser");
     return null;
   }
 }
 
 function isAdmin(user) {
   if (!user) return false;
-  return user.role === "admin" || user.is_superuser === true;
+
+  const storedRole = localStorage.getItem("role");
+  const storedSuper = localStorage.getItem("is_superuser") === "1";
+
+  return storedSuper || storedRole === "admin";
 }
+
 
 /**
  * ===============================

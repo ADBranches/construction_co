@@ -100,3 +100,21 @@ def test_inquiry_stats():
     assert resp.status_code == 200
     data = resp.json()
     assert data["total"] >= 1
+
+def test_admin_dashboard_stats():
+    token = login()
+    resp = client.get(
+        "/api/v1/stats/",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert "services" in data
+    assert "projects" in data
+    assert "inquiries" in data
+    assert "testimonials" in data
+    assert "subscribers" in data
+
+    assert data["projects"] >= 1
+    assert data["inquiries"] >= 1

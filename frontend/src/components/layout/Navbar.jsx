@@ -16,10 +16,12 @@ const navItems = [
     path: "/services",
     label: "Services",
     dropdown: [
-      { path: "/services/biogas", label: "Biogas & Energy" },
-      { path: "/services/farm-systems", label: "Smart Farm Systems" },
-      { path: "/services/livestock", label: "Livestock Housing" },
-      { path: "/services/construction", label: "Construction Works" },
+      { path: "/services/biodigester-installation", label: "Biodigester Installation" },
+      { path: "/services/farm-and-household-waste-management", label: "Waste Management" },
+      { path: "/services/animal-production-consultancy", label: "Animal Production Consultancy" },
+      { path: "/services/biogas-appliances-supply", label: "Biogas Appliances Supply" },
+      { path: "/services/capacity-building-services", label: "Capacity Building" },
+      { path: "/services/pasture-establishment-and-management", label: "Pasture Management" },
     ],
   },
   { path: "/projects", label: "Projects" },
@@ -32,6 +34,8 @@ function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
+  // admin check
+  const isAdminUser = localStorage.getItem("is_superuser") === "1";
 
   return (
     <>
@@ -160,6 +164,14 @@ function Navbar() {
                   )}
                 </div>
               ))}
+              {isAdminUser && (
+                <NavLink
+                  to="/admin/dashboard"
+                  className="relative px-4 py-2 font-medium text-[#003023] hover:text-[#f05010] transition"
+                >
+                  Admin
+                </NavLink>
+              )}
             </nav>
 
             {/* ░ DESKTOP CTA ░ */}
@@ -220,6 +232,15 @@ function Navbar() {
                 )}
               </div>
             ))}
+            {isAdminUser && (
+              <Link
+                to="/admin/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="block px-2 py-2 rounded-lg text-[#003023] font-medium hover:bg-[#f6fef9] hover:text-[#f05010]"
+              >
+                Admin Dashboard
+              </Link>
+            )}
 
             {/* MOBILE CTA */}
             <Link

@@ -57,6 +57,23 @@ class Project(Base):
         Text,
         nullable=True,
     )
+    
+        # 🔹 CMS-friendly fields
+    short_description: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
+    budget: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )  # human-readable e.g. "50M UGX"
+
+    hero_image_url: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )  # main hero banner
+
 
     location: Mapped[str | None] = mapped_column(
         String(255),
