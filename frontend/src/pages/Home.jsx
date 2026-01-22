@@ -1,5 +1,6 @@
 // src/pages/Home.jsx
 import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import Seo from "../seo/Seo";
 import Hero from "../components/Hero.jsx";
 import api from "../lib/apiClient";
@@ -48,29 +49,34 @@ function TestimonialSlider() {
     timeoutRef.current = setTimeout(() => {
       setIndex((prev) => (prev + 1) % testimonials.length);
     }, 4500);
-    return () => clearTimeout(timeoutRef.current);
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, [index]);
 
   const t = testimonials[index];
 
   return (
-    <div className="relative max-w-3xl mx-auto text-center px-6">
-      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 px-8 py-10">
-        <p className="text-xl md:text-2xl text-[#003023] italic leading-relaxed">
+    <div className="relative max-w-4xl mx-auto text-center px-6">
+      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 px-6 md:px-8 py-8 md:py-9">
+        <p className="text-lg md:text-xl text-[#003023] italic leading-relaxed">
           “{t.quote}”
         </p>
-        <div className="mt-6">
-          <p className="text-lg font-semibold text-[#003023]">{t.name}</p>
-          <p className="text-sm text-[#003023]/70">{t.role}</p>
+        <div className="mt-5">
+          <p className="text-base md:text-lg font-semibold text-[#003023]">
+            {t.name}
+          </p>
+          <p className="text-xs md:text-sm text-[#003023]/70">{t.role}</p>
         </div>
       </div>
 
       {/* Dots */}
-      <div className="flex justify-center mt-5 gap-3">
+      <div className="flex justify-center mt-4 gap-2.5">
         {testimonials.map((_, i) => (
           <span
             key={i}
-            className={`w-3 h-3 rounded-full transition ${
+            className={`w-2.5 h-2.5 rounded-full transition ${
               index === i ? "bg-[#f05010]" : "bg-[#003023]/30"
             }`}
           ></span>
@@ -139,6 +145,9 @@ export default function Home() {
       icon: iconMap[i] || Leaf,
     }));
 
+  // Featured Work: show minimum 3 projects (if available)
+  const featuredProjects = (projects || []).slice(0, 3);
+
   /* ---------------------------------------------
      RESTORED TREE-STYLE PROCESS STEPS
   ---------------------------------------------- */
@@ -175,9 +184,6 @@ export default function Home() {
     },
   ];
 
-  // Featured Work: show minimum 3 projects (if available)
-  const featuredProjects = (projects || []).slice(0, 3);
-
   return (
     <>
       <Seo
@@ -190,13 +196,13 @@ export default function Home() {
         <Hero />
 
         {/* PILLARS */}
-        <section className="py-20 bg-white">
+        <section className="py-16 md:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-10 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#003023] mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#003023] mb-10">
               Our Pillars of Excellence
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 {
                   icon: Leaf,
@@ -216,17 +222,19 @@ export default function Home() {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="bg-[#f6fef9] border border-[#83c441]/30 rounded-3xl p-10 shadow-sm hover:shadow-xl transition"
+                  className="bg-[#f6fef9] border border-[#83c441]/30 rounded-3xl p-7 md:p-8 shadow-sm hover:shadow-xl transition"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-[#003023] flex items-center justify-center mx-auto mb-6">
-                    <item.icon className="w-8 h-8 text-white" />
+                  <div className="w-14 h-14 rounded-2xl bg-[#003023] flex items-center justify-center mx-auto mb-5">
+                    <item.icon className="w-7 h-7 text-white" />
                   </div>
 
-                  <h3 className="text-2xl font-bold text-[#003023] mb-3">
+                  <h3 className="text-xl md:text-2xl font-bold text-[#003023] mb-2.5">
                     {item.title}
                   </h3>
 
-                  <p className="text-[#003023]/70">{item.desc}</p>
+                  <p className="text-sm md:text-base text-[#003023]/70">
+                    {item.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -234,13 +242,17 @@ export default function Home() {
         </section>
 
         {/* FEATURED SERVICES */}
-        <section className="py-28 bg-[#f6fef9]" id="services">
+        <section className="py-16 md:py-20 bg-[#f6fef9]" id="services">
           <div className="max-w-7xl mx-auto px-6 md:px-10">
-            <h2 className="text-center text-4xl md:text-5xl font-bold text-[#003023] mb-16">
+            <h2 className="text-center text-3xl md:text-4xl font-bold text-[#003023] mb-4">
               Featured Services
             </h2>
+            <p className="text-center text-sm md:text-base text-[#003023]/70 max-w-2xl mx-auto mb-10">
+              A snapshot of the core Brisk Farm services we deliver most often.
+              Tap a service to see the full package.
+            </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {loadingServices && (
                 <p className="col-span-full text-center text-gray-600">
                   Loading services…
@@ -254,31 +266,41 @@ export default function Home() {
 
                   return (
                     <div
-                      key={index}
-                      className="group bg-white rounded-3xl border border-gray-200 shadow-md hover:shadow-2xl p-10 transition relative"
+                      key={service.id || index}
+                      className="group bg-white rounded-3xl border border-gray-200 shadow-md hover:shadow-2xl p-7 md:p-8 transition relative"
                     >
-                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#83c441]/10 to-[#f05010]/10 opacity-0 group-hover:opacity-100 transition"></div>
+                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#83c441]/10 to-[#f05010]/10 opacity-0 group-hover:opacity-100 transition" />
 
                       <div className="relative">
-                        <div className="w-16 h-16 bg-[#003023] rounded-2xl flex items-center justify-center mb-6 shadow">
-                          <Icon className="w-8 h-8 text-white" />
+                        <div className="w-14 h-14 bg-[#003023] rounded-2xl flex items-center justify-center mb-5 shadow">
+                          <Icon className="w-7 h-7 text-white" />
                         </div>
 
-                        <h3 className="text-2xl font-bold text-[#003023] mb-4 group-hover:text-[#f05010]">
+                        <h3 className="text-xl md:text-2xl font-bold text-[#003023] mb-3 group-hover:text-[#f05010]">
                           {service.name}
                         </h3>
 
-                        <p className="text-[#003023]/70 mb-8">
+                        <p className="text-sm md:text-base text-[#003023]/70 mb-6">
                           {service.short_description ||
+                            service.description ||
                             "Tailored solution for your next project."}
                         </p>
 
-                        <a
-                          href="/quote"
-                          className="text-[#003023] font-semibold hover:text-[#f05010]"
-                        >
-                          Learn More →
-                        </a>
+                        {service.slug ? (
+                          <Link
+                            to={`/services/${service.slug}`}
+                            className="text-sm md:text-base text-[#003023] font-semibold hover:text-[#f05010]"
+                          >
+                            Learn More →
+                          </Link>
+                        ) : (
+                          <a
+                            href="/services"
+                            className="text-sm md:text-base text-[#003023] font-semibold hover:text-[#f05010]"
+                          >
+                            Learn More →
+                          </a>
+                        )}
                       </div>
                     </div>
                   );
@@ -286,83 +308,105 @@ export default function Home() {
             </div>
 
             {!loadingServices && servicesError && (
-              <p className="text-center text-red-600">{servicesError}</p>
+              <p className="text-center text-red-600 mt-5 text-sm">
+                {servicesError}
+              </p>
+            )}
+
+            {!loadingServices && !servicesError && featuredServices.length > 0 && (
+              <div className="mt-8 text-center">
+                <Link
+                  to="/services"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-[#003023]/15 bg-white px-8 py-3 text-sm font-semibold text-[#003023] hover:bg-[#003023] hover:text-white transition"
+                >
+                  View all services
+                </Link>
+              </div>
             )}
           </div>
         </section>
 
         {/* PROJECT GALLERY – FEATURED WORK */}
-        <section className="py-28 bg-white">
+        <section className="py-16 md:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-10">
-            <h2 className="text-center text-4xl md:text-5xl font-bold text-[#003023] mb-6">
+            <h2 className="text-center text-3xl md:text-4xl font-bold text-[#003023] mb-4">
               Featured Work
             </h2>
-            <p className="text-center text-[#003023]/70 mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-sm md:text-base text-[#003023]/70 mb-10 max-w-2xl mx-auto">
               A snapshot of biogas systems, waste management, capacity building and
-              construction projects we’ve delivered with farmers and partners across Uganda.
+              construction projects we’ve delivered with farmers and partners across
+              Uganda.
             </p>
 
             {loadingProjects && (
-              <p className="text-center text-gray-600">Loading featured work…</p>
-            )}
-
-            {!loadingProjects && projectsError && (
-              <p className="text-center text-red-600">{projectsError}</p>
-            )}
-
-            {!loadingProjects && !projectsError && featuredProjects.length === 0 && (
-              <p className="text-center text-[#003023]/60">
-                Featured projects will appear here soon.
+              <p className="text-center text-gray-600 text-sm">
+                Loading featured work…
               </p>
             )}
 
-            {!loadingProjects && !projectsError && featuredProjects.length > 0 && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {featuredProjects.map((project, index) => (
-                    <ProjectCard
-                      key={project.id || project.slug || index}
-                      project={project}
-                      index={index}
-                    />
-                  ))}
-                </div>
-
-                <div className="mt-10 flex justify-center">
-                  <a
-                    href="/projects"
-                    className="px-8 py-3 rounded-xl border border-[#003023]/20 text-sm font-semibold text-[#003023] hover:bg-[#003023] hover:text-white transition"
-                  >
-                    View More Projects
-                  </a>
-                </div>
-              </>
+            {!loadingProjects && projectsError && (
+              <p className="text-center text-red-600 text-sm">
+                {projectsError}
+              </p>
             )}
+
+            {!loadingProjects &&
+              !projectsError &&
+              featuredProjects.length === 0 && (
+                <p className="text-center text-[#003023]/60 text-sm">
+                  Featured projects will appear here soon.
+                </p>
+              )}
+
+            {!loadingProjects &&
+              !projectsError &&
+              featuredProjects.length > 0 && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {featuredProjects.map((project, index) => (
+                      <ProjectCard
+                        key={project.id || project.slug || index}
+                        project={project}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="mt-8 flex justify-center">
+                    <a
+                      href="/projects"
+                      className="px-9 py-3 rounded-xl border border-[#003023]/20 text-sm font-semibold text-[#003023] hover:bg-[#003023] hover:text-white transition"
+                    >
+                      View More Projects
+                    </a>
+                  </div>
+                </>
+              )}
           </div>
         </section>
 
-        {/* CTA BLOCK */}
-        <section className="py-24 bg-[#003023] text-white">
-          <div className="max-w-5xl mx-auto text-center px-6">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        {/* MAIN CTA BLOCK */}
+        <section className="py-16 md:py-20 bg-[#003023] text-white">
+          <div className="max-w-7xl mx-auto text-center px-6 md:px-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-5">
               Ready to Start Your Project?
             </h2>
-            <p className="text-lg md:text-xl text-white/80 mb-10">
+            <p className="text-base md:text-lg text-white/80 mb-8 max-w-3xl mx-auto">
               Transform your farm, business, or construction project with sustainable,
               modern solutions.
             </p>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-5">
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a
                 href="/quote"
-                className="px-10 py-4 bg-[#f05010] rounded-2xl hover:bg-[#d6490e] transition"
+                className="px-9 py-3.5 bg-[#f05010] rounded-2xl text-sm md:text-base font-semibold hover:bg-[#d6490e] transition"
               >
                 Start Your Project
               </a>
 
               <a
                 href="tel:+256783111015"
-                className="px-10 py-4 border-2 border-white rounded-2xl hover:bg-white hover:text-[#003023] transition"
+                className="px-9 py-3.5 border-2 border-white rounded-2xl text-sm md:text-base font-semibold hover:bg-white hover:text-[#003023] transition"
               >
                 Call Us Now
               </a>
@@ -371,9 +415,9 @@ export default function Home() {
         </section>
 
         {/* TESTIMONIAL SLIDER */}
-        <section className="py-28 bg-[#f6fef9]">
-          <div className="max-w-6xl mx-auto px-6">
-            <h2 className="text-4xl md:text-5xl font-bold text-center text-[#003023] mb-16">
+        <section className="py-16 md:py-20 bg-[#f6fef9]">
+          <div className="max-w-7xl mx-auto px-6 md:px-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-[#003023] mb-12">
               What Our Clients Say
             </h2>
 
@@ -382,9 +426,9 @@ export default function Home() {
         </section>
 
         {/* PROCESS – TREE STYLE ALTERNATING */}
-        <section className="py-28 bg-white">
+        <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-10">
-            <h2 className="text-4xl md:text-5xl font-bold text-center text-[#003023] mb-20">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-[#003023] mb-16">
               Our Process
             </h2>
 
@@ -396,25 +440,25 @@ export default function Home() {
                               transform -translate-x-1/2"
               />
 
-              <div className="space-y-20">
+              <div className="space-y-14">
                 {processSteps.map((step, index) => {
                   const isLeft = index % 2 === 0;
 
                   return (
                     <div key={index} className="relative">
                       {/* Desktop alternating */}
-                      <div className="hidden md:grid md:grid-cols-2 md:gap-8 items-center">
+                      <div className="hidden md:grid md:grid-cols-2 md:gap-6 items-center">
                         {isLeft ? (
                           <>
-                            <div className="flex justify-end pr-10">
-                              <div className="bg-[#f6fef9] border border-[#83c441]/30 rounded-3xl shadow-md p-8 w-full max-w-md">
-                                <p className="text-[#f05010] text-sm font-semibold mb-1">
+                            <div className="flex justify-end pr-8">
+                              <div className="bg-[#f6fef9] border border-[#83c441]/30 rounded-3xl shadow-md p-6 w-full max-w-md">
+                                <p className="text-[#f05010] text-xs md:text-sm font-semibold mb-1">
                                   Step {step.step}
                                 </p>
-                                <h3 className="text-2xl font-bold text-[#003023] mb-2">
+                                <h3 className="text-xl md:text-2xl font-bold text-[#003023] mb-1.5">
                                   {step.title}
                                 </h3>
-                                <p className="text-[#003023]/70">
+                                <p className="text-sm text-[#003023]/70">
                                   {step.description}
                                 </p>
                               </div>
@@ -424,15 +468,15 @@ export default function Home() {
                         ) : (
                           <>
                             <div></div>
-                            <div className="flex justify-start pl-10">
-                              <div className="bg-[#f6fef9] border border-[#83c441]/30 rounded-3xl shadow-md p-8 w-full max-w-md">
-                                <p className="text-[#f05010] text-sm font-semibold mb-1">
+                            <div className="flex justify-start pl-8">
+                              <div className="bg-[#f6fef9] border border-[#83c441]/30 rounded-3xl shadow-md p-6 w-full max-w-md">
+                                <p className="text-[#f05010] text-xs md:text-sm font-semibold mb-1">
                                   Step {step.step}
                                 </p>
-                                <h3 className="text-2xl font-bold text-[#003023] mb-2">
+                                <h3 className="text-xl md:text-2xl font-bold text-[#003023] mb-1.5">
                                   {step.title}
                                 </h3>
-                                <p className="text-[#003023]/70">
+                                <p className="text-sm text-[#003023]/70">
                                   {step.description}
                                 </p>
                               </div>
@@ -443,37 +487,28 @@ export default function Home() {
 
                       {/* Mobile */}
                       <div className="md:hidden">
-                        <div className="bg-[#f6fef9] border border-[#83c441]/30 rounded-3xl shadow-md p-8">
-                          <p className="text-[#f05010] text-sm font-semibold mb-1">
+                        <div className="bg-[#f6fef9] border border-[#83c441]/30 rounded-3xl shadow-md p-6">
+                          <p className="text-[#f05010] text-xs font-semibold mb-1">
                             Step {step.step}
                           </p>
-                          <h3 className="text-2xl font-bold text-[#003023] mb-2">
+                          <h3 className="text-xl font-bold text-[#003023] mb-1.5">
                             {step.title}
                           </h3>
-                          <p className="text-[#003023]/70">{step.description}</p>
+                          <p className="text-sm text-[#003023]/70">
+                            {step.description}
+                          </p>
                         </div>
                       </div>
 
                       {/* Node */}
                       <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                        <div className="w-14 h-14 bg-white rounded-full border-[4px] border-[#003023]/70 shadow-lg flex items-center justify-center text-[#003023] font-bold">
+                        <div className="w-12 h-12 bg-white rounded-full border-[3px] border-[#003023]/70 shadow-lg flex items-center justify-center text-[#003023] text-sm md:text-base font-bold">
                           {step.step}
                         </div>
                       </div>
                     </div>
                   );
                 })}
-              </div>
-
-              {/* CTA under Process */}
-              <div className="text-center mt-20">
-                <a
-                  href="/quote"
-                  className="px-10 py-4 bg-[#f05010] text-white font-semibold rounded-xl 
-                            shadow-md hover:bg-[#d9470e] transition duration-300"
-                >
-                  Get Started Today →
-                </a>
               </div>
             </div>
           </div>
