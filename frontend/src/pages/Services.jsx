@@ -3,6 +3,39 @@ import { useEffect, useState } from "react";
 import api from "../lib/apiClient";
 import Seo from "../seo/Seo";
 import ServiceCard from "../components/ServiceCard";
+import { Leaf, Zap, Building } from "lucide-react";
+
+/**
+ * Fallback hero images for services where backend hero_image_url
+ * is not set. These match files in public/images/services.
+ */
+const SERVICE_HERO_MAP = {
+  "biodigester-installation":
+    "/images/services/biodigester-installation_02-hero.webp",
+  "biogas-appliances-supply":
+    "/images/services/biogas-appliances-supply_01-hero.webp",
+  "farm-and-household-waste-management":
+    "/images/services/farm-and-household-waste-management_05-hero.webp",
+  "capacity-building-services":
+    "/images/services/capacity-building-services_04-hero.webp",
+  "pasture-establishment-and-management":
+    "/images/services/pasture-establishment-and-management_05-hero.webp",
+  "animal-production-consultancy":
+    "/images/services/animal-production-consultancy_05-hero.webp",
+};
+
+/**
+ * Icon + color mapping per service slug.
+ * Color keys line up with ServiceCard colorVariants.
+ */
+const SERVICE_STYLE_MAP = {
+  "biodigester-installation": { icon: Zap, color: "emerald" },
+  "biogas-appliances-supply": { icon: Zap, color: "orange" },
+  "farm-and-household-waste-management": { icon: Building, color: "orange" },
+  "capacity-building-services": { icon: Leaf, color: "blue" },
+  "pasture-establishment-and-management": { icon: Leaf, color: "emerald" },
+  "animal-production-consultancy": { icon: Building, color: "emerald" },
+};
 
 function Services() {
   const [services, setServices] = useState([]);
@@ -17,8 +50,9 @@ function Services() {
       .then((data) => {
         if (!isMounted) return;
 
-        // assuming backend returns a plain array
-        setServices(Array.isArray(data) ? data : data?.items || []);
+        // backend returns a plain array
+        const items = Array.isArray(data) ? data : data?.items || [];
+        setServices(items);
         setLoading(false);
       })
       .catch((err) => {
@@ -41,16 +75,16 @@ function Services() {
         description="Brisk Farm Solutions & Construction Company offers biogas systems, livestock enhancement, crop production support, waste-to-energy solutions, farm training, and modern construction services across Uganda."
       />
 
-      <section className="space-y-6">
+      <section className="space-y-8">
         {/* HEADER */}
         <header>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--brand-yellow)]">
             Services
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-[var(--brand-green)]">
+          <h1 className="mt-1 text-2xl md:text-3xl font-extrabold text-[var(--brand-green)]">
             Integrated Farm &amp; Construction Solutions
           </h1>
-          <p className="mt-2 max-w-xl text-xs text-[var(--brand-contrast)]/80">
+          <p className="mt-2 max-w-xl text-xs md:text-sm text-[var(--brand-contrast)]/80">
             We design and deliver sustainable systems that combine modern
             construction, integrated farming, and renewable energy to help
             households, farms, and institutions grow safely and profitably.
@@ -122,7 +156,7 @@ function Services() {
         </section>
 
         {/* DETAILED SERVICE PACKAGES (BACKEND) */}
-        <section className="space-y-3">
+        <section className="space-y-4">
           <h2 className="text-sm font-semibold text-[var(--brand-green)]">
             Detailed Service Packages
           </h2>
@@ -147,36 +181,39 @@ function Services() {
           )}
 
           {!loading && !error && services.length > 0 && (
-            <div className="grid gap-4 md:grid-cols-2">
-              {services.map((service, index) => (
-                <ServiceCard
-                  key={service.id}
-                  // backend fields
-                  title={service.name}
-                  description={
-                    service.short_description || service.description || ""
-                  }
-                  tagline={service.tagline}
-                  features={[
-                    service.highlight_1,
-                    service.highlight_2,
-                    service.highlight_3,
-                  ].filter(Boolean)}
-                  // map category to color (fallback emerald)
-                  color={
-                    service.category === "biogas"
-                      ? "emerald"
-                      : service.category === "waste-management"
-                      ? "orange"
-                      : service.category === "capacity-building"
-                      ? "blue"
-                      : "emerald"
-                  }
-                  delay={index * 0.05}
-                  // pass slug so card can link to /services/:slug
-                  slug={service.slug}
-                />
-              ))}
+            <div className="grid gap-5 md:grid-cols-2">
+              {services.map((service, index) => {
+                const style = SERVICE_STYLE_MAP[service.slug] || {
+                  icon: Leaf,
+                  color: "emerald",
+                };
+
+                const imageUrl =
+                  service.hero_image_url ||
+                  SERVICE_HERO_MAP[service.slug] ||
+                  null;
+
+                return (
+                  <ServiceCard
+                    key={service.id}
+                    icon={style.icon}
+                    title={service.name}
+                    description={
+                      service.short_description || service.description || ""
+                    }
+                    tagline={service.tagline}
+                    features={[
+                      service.highlight_1,
+                      service.highlight_2,
+                      service.highlight_3,
+                    ].filter(Boolean)}
+                    color={style.color}
+                    delay={index * 0.05}
+                    slug={service.slug}
+                    imageUrl={imageUrl}
+                  />
+                );
+              })}
             </div>
           )}
         </section>

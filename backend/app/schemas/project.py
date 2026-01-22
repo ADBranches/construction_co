@@ -3,67 +3,19 @@ from datetime import datetime, date
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
-
 from app.models.project import ProjectStatus
 from .service import ServiceOut
 from .media import MediaOut
 
 
+# =====================================================
+# BASE MODEL (Shared fields)
+# =====================================================
 class ProjectBase(BaseModel):
-    """
-    Core project fields shared across create/update/output.
-
-    Harmonized between:
-    - original schema (budget_amount, dates, cover_image_url, etc.)
-    - CMS spec (short_description, hero_image_url, budget as string).
-    """
+    model_config = ConfigDict(from_attributes=True)
 
     name: str
     slug: str
-
-    # Descriptions
-    description: str | None = None
-    short_description: str | None = None  # brief marketing copy
-
-    # Context
-    location: str | None = None
-    client_name: str | None = None
-
-    # Budget (both numeric & human-readable)
-    budget_amount: float | None = None  # numeric, useful for stats
-    budget: str | None = None  # human-readable string ("UGX 20M", etc.)
-
-    # Timeline
-    start_date: date | None = None
-    end_date: date | None = None
-
-    # Status / flags
-    status: ProjectStatus = ProjectStatus.ONGOING
-    is_featured: bool = False
-
-    # Images
-    cover_image_url: str | None = None  # legacy/main image
-    hero_image_url: str | None = None  # full-width hero image for detail pages
-
-    # Relations
-    service_id: UUID | None = None  # optional relation to Service
-
-
-class ProjectCreate(ProjectBase):
-    """
-    Payload for creating a new project.
-    """
-    pass
-
-
-class ProjectUpdate(BaseModel):
-    """
-    Partial update payload – all fields optional.
-    Mirrors ProjectBase but optional for PATCH/PUT semantics.
-    """
-
-    name: str | None = None
-    slug: str | None = None
 
     # Descriptions
     description: str | None = None
@@ -81,22 +33,70 @@ class ProjectUpdate(BaseModel):
     start_date: date | None = None
     end_date: date | None = None
 
-    # Status / flags
-    status: ProjectStatus | None = None
-    is_featured: bool | None = None
+    # Status & flags
+    status: ProjectStatus = ProjectStatus.ONGOING
+    is_featured: bool = False
 
     # Images
     cover_image_url: str | None = None
     hero_image_url: str | None = None
+    thumbnail: str | None = None
+
+    # Card metadata
+    type: str | None = None
+    technologies: list[str] | None = None
+    size: str | None = None
 
     # Relations
     service_id: UUID | None = None
 
 
+# =====================================================
+# CREATE
+# =====================================================
+class ProjectCreate(ProjectBase):
+    pass
+
+
+# =====================================================
+# UPDATE (all optional)
+# =====================================================
+class ProjectUpdate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str | None = None
+    slug: str | None = None
+
+    description: str | None = None
+    short_description: str | None = None
+
+    location: str | None = None
+    client_name: str | None = None
+
+    budget_amount: float | None = None
+    budget: str | None = None
+
+    start_date: date | None = None
+    end_date: date | None = None
+
+    status: ProjectStatus | None = None
+    is_featured: bool | None = None
+
+    cover_image_url: str | None = None
+    hero_image_url: str | None = None
+    thumbnail: str | None = None
+
+    type: str | None = None
+    technologies: list[str] | None = None
+    size: str | None = None
+
+    service_id: UUID | None = None
+
+
+# =====================================================
+# LIST ITEM (used in lists)
+# =====================================================
 class ProjectBrief(BaseModel):
-    """
-    Lightweight projection for listings (cards, grids, etc.).
-    """
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
@@ -105,34 +105,39 @@ class ProjectBrief(BaseModel):
     location: str | None = None
     status: ProjectStatus
     is_featured: bool
+
+    # Useful for listings
+    thumbnail: str | None = None
     cover_image_url: str | None = None
-    hero_image_url: str | None = None  # optional for richer cards
+    hero_image_url: str | None = None
     short_description: str | None = None
 
+    type: str | None = None
+    size: str | None = None
 
+
+# =====================================================
+# FULL OUTPUT
+# =====================================================
 class ProjectOut(ProjectBase):
-    """
-    Full project representation for detail views & admin.
-    Includes nested relations.
-    """
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     created_at: datetime
     updated_at: datetime
 
-    # Optional nested data for richer detail views
     service: ServiceOut | None = None
     media_items: list[MediaOut] = []
 
 
+# =====================================================
+# PAGINATED LIST WRAPPER
+# =====================================================
 class ProjectListOut(BaseModel):
-    """
-    Wrapper for paginated project listings.
-    """
     model_config = ConfigDict(from_attributes=True)
 
     total: int
     page: int
     limit: int
     items: list[ProjectBrief]
+

@@ -79,12 +79,13 @@ function Quote() {
   ];
 
   const projectTags = [
-    "Biogas & Waste-to-Energy",
-    "Smart Farm Systems",
-    "Livestock Housing",
-    "Farm Infrastructure",
-    "Civil Works",
-    "Irrigation Systems",
+    "Animal production consultancy (dairy, beef, small ruminants, poultry)",
+    "Farm & household waste management",
+    "Biodigester installation (fixed dome & prefabricated)",
+    "Supply of biogas appliances & accessories",
+    "Capacity building – livestock & biodigester systems management",
+    "Pasture establishment & management",
+    "Integrated farm & energy packages",
   ];
 
   return (
@@ -160,15 +161,16 @@ function Quote() {
                 <h2 className="text-2xl font-bold mb-4">Why Choose Brisk Farm?</h2>
 
                 <p className="text-white/85 mb-6">
-                  We combine engineering precision with real field experience to
-                  deliver reliable agro-systems that work on-site.
+                  We design farm solutions for today’s and tomorrow’s challenges —
+                  using research-driven engineering and maximising farm waste to
+                  generate clean energy and bio-fertilisers.
                 </p>
 
                 <div className="space-y-4">
                   {[
-                    "Site Visits & Assessments",
-                    "Detailed BOQs & Plans",
-                    "Ongoing Design Support",
+                    "Waste-to-energy & bio-fertiliser optimisation for your farm",
+                    "Research-backed designs tailored to your enterprise",
+                    "On-ground support from site assessment to after-sales follow-up",
                   ].map((item, idx) => (
                     <div key={idx} className="flex gap-3 items-start">
                       <CheckCircle className="w-5 h-5 text-[#83c441] flex-shrink-0 mt-1" />
@@ -243,12 +245,36 @@ function Quote() {
                 {/* INPUT GRID */}
                 <div className="grid md:grid-cols-2 gap-8">
                   {[
-                    { id: "full_name", label: "Full Name *", name: "full_name", placeholder: "John Doe" },
-                    { id: "email", label: "Email Address", name: "email", placeholder: "john@example.com" },
-                    { id: "phone", label: "Phone / WhatsApp", name: "phone", placeholder: "+256 XXX XXX XXX" },
-                    { id: "project_type", label: "Project Type", name: "project_type", placeholder: "Biogas, Housing..." },
-                    { id: "budget_range", label: "Budget Range", name: "budget_range", placeholder: "20M – 150M UGX" },
-                    { id: "location", label: "Project Location", name: "location", placeholder: "District / Town" },
+                    {
+                      id: "full_name",
+                      label: "Full Name *",
+                      name: "full_name",
+                      placeholder: " Eng. Sarah N., Farm Manager",
+                    },
+                    {
+                      id: "email",
+                      label: "Email Address",
+                      name: "email",
+                      placeholder: " projects@greenvalleydairy.co.ug",
+                    },
+                    {
+                      id: "phone",
+                      label: "Phone / WhatsApp",
+                      name: "phone",
+                      placeholder: " +256 783 111 015",
+                    },
+                    {
+                      id: "budget_range",
+                      label: "Budget Range",
+                      name: "budget_range",
+                      placeholder: " UGX 40M – 120M (estimated)",
+                    },
+                    {
+                      id: "location",
+                      label: "Project Location",
+                      name: "location",
+                      placeholder: " Ssenge, Wakiso District",
+                    },
                   ].map((field, i) => (
                     <div key={i} className="space-y-2">
                       <label
@@ -269,6 +295,62 @@ function Quote() {
                     </div>
                   ))}
                 </div>
+                {/* PROJECT TYPE DROPDOWN */}
+                <div className="mt-4">
+                  <label
+                    htmlFor="project_type"
+                    className="text-sm font-semibold text-[#003023] mb-2 block"
+                  >
+                    Project Type *
+                  </label>
+                  <select
+                    id="project_type"
+                    name="project_type"
+                    value={form.project_type}
+                    onChange={handleChange}
+                    className="w-full bg-[#f6fef9] border border-[#003023]/20 rounded-xl px-4 py-3 text-sm text-[#003023] outline-none focus:ring-2 focus:ring-[#003023]/20 focus:border-[#003023] transition"
+                    required
+                  >
+                    <option value="">
+                      Select the service that best matches your project
+                    </option>
+
+                    {/* 1. Animal Production consultancy */}
+                    <option value="animal_production">
+                      Animal production consultancy (dairy, beef, small ruminants, poultry)
+                    </option>
+
+                    {/* 2. Farm & household waste management */}
+                    <option value="waste_management">
+                      Farm &amp; household waste management
+                    </option>
+
+                    {/* 3. Biodigester installation */}
+                    <option value="biodigester_installation">
+                      Biodigester installation (fixed dome &amp; prefabricated)
+                    </option>
+
+                    {/* 4. Supply of biogas appliances */}
+                    <option value="biogas_appliances">
+                      Supply of biogas appliances (heaters, generators, pumps, etc.)
+                    </option>
+
+                    {/* 5. Capacity building services */}
+                    <option value="capacity_building">
+                      Capacity building (livestock &amp; biodigester systems management)
+                    </option>
+
+                    {/* 6. Pasture establishment & management */}
+                    <option value="pasture_management">
+                      Pasture establishment &amp; management
+                    </option>
+
+                    {/* Strategic bucket */}
+                    <option value="other">
+                      Mixed / custom project or partnership
+                    </option>
+                  </select>
+                </div>
 
                 {/* MESSAGE BOX */}
                 <div className="space-y-2">
@@ -286,14 +368,14 @@ function Quote() {
                     value={form.message}
                     onChange={handleChange}
                     className="w-full bg-[#f6fef9] border border-[#003023]/20 rounded-xl px-4 py-3 text-sm resize-none outline-none focus:ring-2 focus:ring-[#003023]/20"
-                    placeholder="Describe your objectives, timelines, and requirements..."
+                    placeholder="Briefly describe your current setup, key challenges, desired outcomes and timelines for this project..."
                   />
                 </div>
 
                 {/* SUBMIT */}
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                   <p className="text-sm text-[#003023]/70 text-center md:text-left">
-                    We respond within 24 hours — no spam.
+                    Our engineering team typically responds within 1 business day with next steps or a proposed site visit.
                   </p>
 
                   <PrimaryButton

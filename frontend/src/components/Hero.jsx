@@ -1,6 +1,14 @@
+// src/components/Hero.jsx
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import PrimaryButton from "./ui/PrimaryButton";
-import { ArrowRight, CheckCircle, Shield, Zap, Users, MapPin } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle,
+  Shield,
+  Zap,
+  Users,
+  MapPin,
+} from "lucide-react";
 import { useState } from "react";
 
 /* ---------------------------------------------------------
@@ -47,8 +55,12 @@ export default function Hero() {
   const particlePositions = PARTICLE_POSITIONS;
 
   return (
-    <section className="relative mt-6 rounded-4xl overflow-hidden bg-[#001a13] pt-20 pb-28 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.5)] mx-4 md:mx-8 lg:mx-12">
-
+    <section
+      className="relative mt-6 mx-4 md:mx-8 lg:mx-12 
+                 rounded-[2.5rem] overflow-hidden bg-[#001a13]
+                 pt-12 pb-14 md:pt-16 md:pb-20
+                 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.5)]"
+    >
       {/* FLOATING PARTICLES */}
       {particlePositions.map((pos, i) => (
         <motion.div
@@ -64,42 +76,55 @@ export default function Hero() {
         />
       ))}
 
-      {/* GLOW BLOBS */}
-      <motion.div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#83c441]/20 rounded-full blur-3xl" animate={{ y: [0, -20, 0] }} transition={{ duration: 9, repeat: Infinity }} />
-      <motion.div className="absolute bottom-1/4 -right-28 w-96 h-96 bg-[#f05010]/20 rounded-full blur-3xl" animate={{ y: [0, 20, 0] }} transition={{ duration: 11, repeat: Infinity }} />
+      {/* GLOW BLOBS (brand greens & orange) */}
+      <motion.div
+        className="absolute top-1/4 -left-20 w-80 h-80 md:w-96 md:h-96 
+                   bg-[#83c441]/20 rounded-full blur-3xl"
+        animate={{ y: [0, -20, 0] }}
+        transition={{ duration: 9, repeat: Infinity }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 -right-24 w-80 h-80 md:w-96 md:h-96 
+                   bg-[#f05010]/20 rounded-full blur-3xl"
+        animate={{ y: [0, 20, 0] }}
+        transition={{ duration: 11, repeat: Infinity }}
+      />
 
-      <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-14">
-        <div className="grid lg:grid-cols-2 gap-14 items-center">
-
+      <div className="relative max-w-6xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
           {/* LEFT SIDE */}
           <div className="relative">
-
-            {/* Soft gradient overlay to make ALL text readable */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-transparent rounded-3xl pointer-events-none"></div>
+            {/* Soft gradient overlay to keep text readable */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-transparent rounded-3xl pointer-events-none"></div>
 
             {/* Badge */}
-            <div className="relative z-10 inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 mb-6">
+            <div className="relative z-10 inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 mb-5">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-[#83c441] rounded-full animate-pulse" />
-                <span className="text-xs text-white font-semibold uppercase tracking-widest">
-                  Uganda&apos;s Leading Solutions Provider
+                <span className="text-[11px] sm:text-xs text-white font-semibold uppercase tracking-[0.2em]">
+                  Smart Construction · Sustainable Agriculture
                 </span>
               </div>
             </div>
 
-            {/* Title */}
-            <h1 className="relative z-10 text-white drop-shadow-2xl text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-5">
-              Building <span className="text-[#83c441]">Sustainable</span> Farms &{" "}
+            {/* Title (smaller but still strong) */}
+            <h1 className="relative z-10 text-white drop-shadow-2xl text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4 max-w-2xl">
+              Building{" "}
+              <span className="text-[#83c441]">Sustainable</span> Farms &{" "}
               <span className="text-[#f05010]">Modern</span> Infrastructure
             </h1>
 
-            <p className="relative z-10 text-lg text-white mb-8 max-w-xl leading-relaxed">
-              We combine engineering excellence with innovative solutions for agriculture
-              and construction — delivering sustainable, modern results for every client.
+            {/* Mission copy (your real story) */}
+            <p className="relative z-10 text-base md:text-lg text-white/90 mb-7 max-w-xl leading-relaxed">
+              We provide farm and construction solutions for today&apos;s and
+              tomorrow&apos;s challenges — using research, innovation and
+              smart technologies to turn waste into clean energy and
+              bio-fertilisers, while strengthening productive livestock and
+              modern infrastructure.
             </p>
 
             {/* Feature bullets */}
-            <div className="relative z-10 grid grid-cols-2 gap-4 mb-10">
+            <div className="relative z-10 grid grid-cols-2 gap-3 md:gap-4 mb-9">
               {features.map((f, i) => {
                 const Icon = f.icon;
                 return (
@@ -108,20 +133,19 @@ export default function Hero() {
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 + i * 0.1 }}
-                    className="flex items-center gap-3 bg-white/15 backdrop-blur-md rounded-xl p-4 border border-white/20 shadow-inner"
+                    className="flex items-center gap-3 bg-white/15 backdrop-blur-md rounded-xl p-3.5 md:p-4 border border-white/20 shadow-inner"
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#003023] to-[#004633] rounded-lg flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-[#83c441]" />
+                    <div className="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-br from-[#003023] to-[#004633] rounded-lg flex items-center justify-center">
+                      <Icon className="w-4 h-4 md:w-5 md:h-5 text-[#83c441]" />
                     </div>
-                    <p className="text-sm text-white">{f.text}</p>
+                    <p className="text-xs md:text-sm text-white">{f.text}</p>
                   </motion.div>
                 );
               })}
             </div>
 
             {/* CTA BUTTONS */}
-            <div className="relative z-10 flex flex-col sm:flex-row gap-5">
-
+            <div className="relative z-10 flex flex-col sm:flex-row gap-4">
               {/* Primary CTA (magnetic) */}
               <motion.div
                 onMouseMove={handleCTA}
@@ -137,22 +161,24 @@ export default function Hero() {
                 <PrimaryButton
                   text="Start Your Project"
                   href="/quote"
-                  className="px-8 py-4 bg-gradient-to-r from-[#f05010] to-[#ff6b35]
+                  className="px-7 py-3.5 
+                             bg-gradient-to-r from-[#f05010] to-[#ff6b35]
                              hover:from-[#ff6b35] hover:to-[#f05010]
-                             text-white text-lg font-semibold rounded-xl shadow-xl 
-                             transition-all relative overflow-hidden"
-                  icon={<ArrowRight className="w-5 h-5 ml-2" />}
+                             text-white text-sm md:text-base font-semibold 
+                             rounded-xl shadow-xl transition-all 
+                             relative overflow-hidden"
+                  icon={<ArrowRight className="w-4 h-4 ml-2" />}
                 />
               </motion.div>
 
-              {/* FIXED HIGH VISIBILITY BUTTON */}
+              {/* Secondary CTA */}
               <a
                 href="#services"
-                className="inline-flex items-center justify-center gap-3 px-8 py-4 
-                           bg-white text-[#003023] font-semibold text-lg 
+                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 
+                           bg-white text-[#003023] font-semibold text-sm md:text-base
                            rounded-xl shadow-lg hover:bg-[#f6fef9] transition-all"
               >
-                <MapPin className="w-5 h-5 text-[#003023]" />
+                <MapPin className="w-4 h-4 md:w-5 md:h-5 text-[#003023]" />
                 View Services
               </a>
             </div>
@@ -160,12 +186,11 @@ export default function Hero() {
 
           {/* RIGHT — HOLO CARD */}
           <motion.div
-            className="relative"
+            className="relative mt-10 lg:mt-0"
             onMouseMove={handleMouseMove}
             style={{ rotateX, rotateY }}
             transition={{ type: "spring", stiffness: 120, damping: 12 }}
           >
-
             {/* Glow border */}
             <div className="absolute -inset-[3px] rounded-3xl bg-[conic-gradient(from_90deg,#83c441,#f05010,#83c441)] blur-[6px] opacity-40" />
 
@@ -173,84 +198,99 @@ export default function Hero() {
               whileHover={{ scale: 1.015 }}
               transition={{ type: "spring", stiffness: 150 }}
               className="relative bg-white/5 backdrop-blur-xl border border-white/10 
-                        rounded-3xl p-8 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.45)] 
-                        overflow-hidden"
+                         rounded-3xl p-6 md:p-8
+                         shadow-[0_20px_60px_-10px_rgba(0,0,0,0.45)] 
+                         overflow-hidden"
             >
-
               {/* Gloss */}
               <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/20 to-transparent opacity-40 pointer-events-none" />
 
               {/* Sweep */}
               <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-                <div className="absolute left-[-50%] top-0 w-full h-full 
-                                bg-gradient-to-r from-transparent via-white/10 to-transparent 
-                                rotate-12 animate-[sweep_6s_linear_infinite]" />
+                <div
+                  className="absolute left-[-50%] top-0 w-full h-full 
+                             bg-gradient-to-r from-transparent via-white/10 to-transparent 
+                             rotate-12 animate-[sweep_6s_linear_infinite]"
+                />
               </div>
 
-              {/* IMAGE AREA */}
-              <div className="w-full h-64 bg-gradient-to-br from-[#003023] to-[#004633] rounded-2xl relative overflow-hidden mb-8">
+              {/* IMAGE AREA / Concept */}
+              <div className="w-full h-52 md:h-64 bg-gradient-to-br from-[#003023] to-[#004633] rounded-2xl relative overflow-hidden mb-7">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <div className="w-14 h-14 bg-gradient-to-br from-[#83c441] to-[#a0d64b] rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Zap className="w-7 h-7 text-white" />
+                  <div className="text-center p-5">
+                    <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-[#83c441] to-[#a0d64b] rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                      <Zap className="w-6 h-6 md:w-7 md:h-7 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-1">
+                    <h3 className="text-lg md:text-xl font-bold text-white mb-1">
                       Project Showcase
                     </h3>
-                    <p className="text-white/90">Modern farm systems in action</p>
+                    <p className="text-sm text-white/90">
+                      Waste-to-energy & smart farm systems in action
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Highlights */}
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="bg-white/10 rounded-xl p-4 text-center">
-                  <div className="text-lg font-bold text-white">24/7</div>
-                  <div className="text-xs text-white/90">Support</div>
+              <div className="grid grid-cols-2 gap-3 md:gap-4 mb-7">
+                <div className="bg-white/10 rounded-xl p-3.5 text-center">
+                  <div className="text-base md:text-lg font-bold text-white">
+                    24/7
+                  </div>
+                  <div className="text-[11px] md:text-xs text-white/90">
+                    Support
+                  </div>
                 </div>
-                <div className="bg-white/10 rounded-xl p-4 text-center">
-                  <div className="text-lg font-bold text-white">100%</div>
-                  <div className="text-xs text-white/90">Satisfaction</div>
+                <div className="bg-white/10 rounded-xl p-3.5 text-center">
+                  <div className="text-base md:text-lg font-bold text-white">
+                    100%
+                  </div>
+                  <div className="text-[11px] md:text-xs text-white/90">
+                    Satisfaction
+                  </div>
                 </div>
               </div>
 
-              {/* Services */}
-              <div className="space-y-3">
+              {/* Services – aligned with your real offering */}
+              <div className="space-y-2.5 text-sm md:text-base">
                 {[
-                  "Biogas & Renewable Energy",
-                  "Smart Farm Systems",
-                  "Modern Construction",
-                  "Livestock Solutions",
+                  "Animal production consultancy",
+                  "Farm & household waste management",
+                  "Biodigester installation (fixed dome & prefabricated)",
+                  "Supply of biogas appliances & energy systems",
+                  "Capacity building in livestock & biodigester management",
+                  "Pasture establishment & management",
                 ].map((service, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-[#83c441] rounded-full" />
-                    <span className="text-white">{service}</span>
+                    <span className="text-white/90">{service}</span>
                   </div>
                 ))}
               </div>
 
-              {/* FIXED CALL NOW BUTTON */}
-              <div className="mt-8 pt-6 border-t border-white/10">
+              {/* CALL NOW BUTTON (smaller, but clear) */}
+              <div className="mt-7 pt-5 border-t border-white/10">
                 <a
                   href="tel:+256783111015"
-                  className="flex items-center justify-center gap-3
-                             bg-white text-[#003023] font-semibold py-3 px-6 rounded-xl 
+                  className="flex items-center justify-center gap-2.5
+                             bg-white text-[#003023] font-semibold 
+                             py-3 px-5 rounded-xl 
+                             text-sm md:text-base
                              shadow-lg hover:bg-[#f6fef9] transition"
                 >
                   Call Now: +256 783 111 015
                 </a>
               </div>
-
             </motion.div>
           </motion.div>
 
+          {/* Sweep keyframes */}
           <style>{`
             @keyframes sweep {
               0% { transform: translateX(-100%); }
               100% { transform: translateX(200%); }
             }
           `}</style>
-
         </div>
       </div>
     </section>

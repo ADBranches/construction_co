@@ -224,8 +224,9 @@ function Contact() {
                         Send a Message
                       </h2>
                       <p className="text-sm text-[#003023]/70">
-                        We&apos;ll respond quickly
+                        Average response time: within 1 business day
                       </p>
+
                     </div>
                   </div>
 
@@ -239,7 +240,7 @@ function Contact() {
                         value={form.full_name}
                         onChange={handleChange}
                         required
-                        placeholder="John Doe"
+                        placeholder="Eng. Sarah N, Farm Manager"
                         className="w-full rounded-xl border border-[#003023]/20 bg-[#f6fef9] px-4 py-3 text-sm text-[#003023] outline-none focus:border-[#003023] focus:ring-2 focus:ring-[#003023]/20 transition-all"
                       />
                     </div>
@@ -255,7 +256,7 @@ function Contact() {
                           value={form.email}
                           onChange={handleChange}
                           required
-                          placeholder="john@example.com"
+                          placeholder="projects@greenvalleydairy.co.ug"
                           className="w-full rounded-xl border border-[#003023]/20 bg-[#f6fef9] px-4 py-3 text-sm text-[#003023] outline-none focus:border-[#003023] focus:ring-2 focus:ring-[#003023]/20 transition-all"
                         />
                       </div>
@@ -268,7 +269,7 @@ function Contact() {
                           name="phone"
                           value={form.phone}
                           onChange={handleChange}
-                          placeholder="+256 XXX XXX XXX"
+                          placeholder="+256 783 111 015"
                           className="w-full rounded-xl border border-[#003023]/20 bg-[#f6fef9] px-4 py-3 text-sm text-[#003023] outline-none focus:border-[#003023] focus:ring-2 focus:ring-[#003023]/20 transition-all"
                         />
                       </div>
@@ -284,13 +285,46 @@ function Contact() {
                         onChange={handleChange}
                         className="w-full rounded-xl border border-[#003023]/20 bg-[#f6fef9] px-4 py-3 text-sm text-[#003023] outline-none focus:border-[#003023] focus:ring-2 focus:ring-[#003023]/20 transition-all"
                       >
-                        <option value="">Select a topic</option>
-                        <option value="biogas">Biogas Installation</option>
-                        <option value="livestock">Livestock Housing</option>
-                        <option value="construction">Construction Works</option>
-                        <option value="farm">Farm Systems</option>
-                        <option value="other">Other Inquiry</option>
+                        <option value="">
+                          Choose what you&apos;d like to discuss
+                        </option>
+
+                        {/* 1. Animal Production consultancy */}
+                        <option value="animal_production">
+                          Animal production consultancy (dairy, beef, small ruminants, poultry)
+                        </option>
+
+                        {/* 2. Farm & household waste management */}
+                        <option value="waste_management">
+                          Farm &amp; household waste management
+                        </option>
+
+                        {/* 3. Biodigester installation */}
+                        <option value="biodigester_installation">
+                          Biodigester installation (fixed dome &amp; prefabricated)
+                        </option>
+
+                        {/* 4. Supply of biogas appliances */}
+                        <option value="biogas_appliances">
+                          Supply of biogas appliances (heaters, generators, pumps, etc.)
+                        </option>
+
+                        {/* 5. Capacity building services */}
+                        <option value="capacity_building">
+                          Capacity building (livestock &amp; biodigester systems management)
+                        </option>
+
+                        {/* 6. Pasture establishment & management */}
+                        <option value="pasture_management">
+                          Pasture establishment &amp; management
+                        </option>
+
+                        {/* Extra: strategic / partnership bucket */}
+                        <option value="partnership">
+                          Partnerships, pilots or other strategic inquiry
+                        </option>
                       </select>
+
                     </div>
 
                     <div>

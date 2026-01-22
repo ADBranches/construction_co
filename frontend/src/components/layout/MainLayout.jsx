@@ -1,15 +1,16 @@
 // src/components/layout/MainLayout.jsx
+import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar.jsx";
 import Footer from "./Footer.jsx";
 
-function MainLayout({ children }) {
+function MainLayout() {
   return (
     <div
       className="min-h-screen flex flex-col 
                  bg-[#f6fef9] text-[#003023]
                  antialiased selection:bg-[#83c441]/30"
     >
-      {/* Modern top spacing to let components breathe */}
+      {/* sticky navbar */}
       <div className="backdrop-blur-xl bg-white/60 shadow-sm sticky top-0 z-40">
         <Navbar />
       </div>
@@ -18,7 +19,6 @@ function MainLayout({ children }) {
         className="flex-1 pt-6 md:pt-10
                    animate-fadeIn"
       >
-        {/* Modern centered container */}
         <div
           className="
             mx-auto w-full 
@@ -29,7 +29,8 @@ function MainLayout({ children }) {
             rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)]
           "
         >
-          {children}
+          {/* 👇 this is where Home/Services/Projects/etc render */}
+          <Outlet />
         </div>
       </main>
 

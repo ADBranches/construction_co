@@ -9,170 +9,165 @@ export default function ServiceCard({
   title,
   description,
   features = [],
+  color = "emerald",
   delay = 0,
-  slug,
-  tagline,
+  slug,      // /services/:slug
+  tagline,   // short punchline
+  imageUrl,  // NEW: hero image from backend / fallback
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Brisk Signature Color System
-  const BORDER = "#83c441";   // lime green
-  const ACCENT = "#83c441";   // accent lime
-  const DARK = "#003023";     // deep forest green
-  const CTA = "#f05010";      // brisk orange
-  const LIGHT = "#f6fef9";    // subtle mint-white background
+  // Color variants
+  const colorVariants = {
+    emerald: {
+      bg: "from-emerald-50 to-teal-50",
+      hoverBg: "group-hover:from-emerald-100 group-hover:to-teal-100",
+      accent: "text-emerald-600",
+      border: "border-emerald-200",
+      iconBg: "bg-emerald-500",
+      chipBg: "bg-emerald-50",
+    },
+    orange: {
+      bg: "from-orange-50 to-amber-50",
+      hoverBg: "group-hover:from-orange-100 group-hover:to-amber-100",
+      accent: "text-orange-600",
+      border: "border-orange-200",
+      iconBg: "bg-orange-500",
+      chipBg: "bg-orange-50",
+    },
+    blue: {
+      bg: "from-sky-50 to-cyan-50",
+      hoverBg: "group-hover:from-sky-100 group-hover:to-cyan-100",
+      accent: "text-sky-600",
+      border: "border-sky-200",
+      iconBg: "bg-sky-500",
+      chipBg: "bg-sky-50",
+    },
+  };
+
+  const variant = colorVariants[color] || colorVariants.emerald;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
+    <motion.article
+      initial={{ opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
+      transition={{ duration: 0.4, delay }}
       whileHover={{ y: -8 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="group relative overflow-hidden cursor-pointer rounded-3xl bg-white shadow-md"
+      className="group relative h-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-
-      {/* Brisk Glow */}
-      <div
-        className="absolute inset-0 rounded-3xl transition-all duration-500"
-        style={{
-          boxShadow: isHovered
-            ? `0 0 40px 5px ${ACCENT}33`
-            : "0 0 0 0 transparent",
-        }}
-      />
-
-      {/* Static Border */}
-      <div
-        className="absolute inset-0 rounded-3xl border transition-colors duration-300"
-        style={{ borderColor: BORDER }}
-      />
-
-      {/* Content */}
-      <div className="relative z-10 p-8 h-full">
-
-        {/* Icon */}
-        <div className="relative mb-6">
-          <motion.div
-            animate={{ rotate: isHovered ? [0, 10, -10, 0] : 0 }}
-            transition={{ duration: 0.4 }}
-            className="relative w-16 h-16 rounded-2xl flex items-center justify-center shadow-md"
-            style={{ background: CTA }}
-          >
-            {IconComponent ? (
-              <IconComponent className="w-8 h-8 text-white" />
-            ) : (
-              <Zap className="w-8 h-8 text-white" />
-            )}
-
-            {isHovered && (
-              <Sparkles className="absolute -top-2 -right-2 w-5 h-5 text-[#ffe07a] animate-ping" />
-            )}
-          </motion.div>
-        </div>
-
-        {/* Title */}
-        <h3
-          className="text-xl font-bold mb-4 transition-colors"
-          style={{ color: DARK }}
+      <Link to={`/services/${slug}`} className="block h-full">
+        <div
+          className={[
+            "relative flex h-full flex-col overflow-hidden rounded-3xl border bg-gradient-to-br shadow-sm transition-shadow",
+            variant.bg,
+            variant.border,
+            "hover:shadow-xl hover:shadow-black/5",
+          ].join(" ")}
         >
-          {title}
-        </h3>
-
-        {/* Description */}
-        <p
-          className="mb-3 leading-relaxed transition-colors"
-          style={{ color: `${DARK}cc` }}
-        >
-          {description}
-        </p>
-
-        {/* Tagline */}
-        {tagline && (
-          <p className="text-sm font-semibold mb-4" style={{ color: ACCENT }}>
-            {tagline}
-          </p>
-        )}
-
-        {/* Features Reveal */}
-        {features.length > 0 && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{
-              height: isHovered ? "auto" : 0,
-              opacity: isHovered ? 1 : 0,
-            }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <div className="space-y-3 mb-6">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5" style={{ color: ACCENT }} />
-                  <span className="text-sm" style={{ color: DARK }}>
-                    {feature}
-                  </span>
+          {/* Top image / hero */}
+          {imageUrl && (
+            <div className="relative h-52 w-full overflow-hidden rounded-3xl">
+              <img
+                src={imageUrl}
+                alt={title}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              {/* Soft gradient overlay */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
+              {/* Tagline overlay */}
+              {tagline && (
+                <div className="pointer-events-none absolute bottom-3 left-4 right-4">
+                  <p className="text-xs font-semibold text-white drop-shadow-sm line-clamp-2">
+                    {tagline}
+                  </p>
                 </div>
-              ))}
+              )}
+              {/* Floating icon chip */}
+              {IconComponent && (
+                <div className="absolute left-4 top-4 flex items-center gap-2">
+                  <div
+                    className={[
+                      "flex h-9 w-9 items-center justify-center rounded-2xl shadow-md shadow-black/10",
+                      variant.iconBg,
+                    ].join(" ")}
+                  >
+                    <IconComponent className="h-5 w-5 text-white" />
+                  </div>
+                </div>
+              )}
             </div>
-          </motion.div>
-        )}
-
-        {/* CTA Button */}
-        <motion.div
-          animate={{
-            x: isHovered ? 0 : -10,
-            opacity: isHovered ? 1 : 0,
-          }}
-          transition={{ duration: 0.3 }}
-          className="absolute bottom-8 right-8"
-        >
-          {slug && (
-            <Link
-              to={`/services/${slug}`}
-              className="flex items-center gap-2 px-4 py-2 rounded-full shadow-md transition"
-              style={{ background: LIGHT }}
-            >
-              <span className="text-sm font-semibold" style={{ color: DARK }}>
-                Explore
-              </span>
-              <ArrowRight className="w-4 h-4" style={{ color: CTA }} />
-            </Link>
           )}
-        </motion.div>
 
-        {/* Pulsing Dot (Brisk Signature Accent) */}
-        <div className="absolute bottom-4 left-4">
-          <div className="relative">
-            <div
-              className="w-2 h-2 rounded-full animate-ping"
-              style={{ background: ACCENT }}
-            />
-            <div
-              className="absolute inset-0 w-2 h-2 rounded-full"
-              style={{ background: ACCENT }}
-            />
+          {/* Content */}
+          <div className="relative flex flex-1 flex-col gap-4 p-6">
+            {/* Shine / glow */}
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0" />
+            </div>
+
+            {/* Title */}
+            <div className="relative">
+              <h3 className="text-lg font-bold text-[#003023] group-hover:text-[#f05010] transition-colors line-clamp-2">
+                {title}
+              </h3>
+              {tagline && !imageUrl && (
+                <p className="mt-1 text-xs font-medium text-[#003023]/70 line-clamp-2">
+                  {tagline}
+                </p>
+              )}
+            </div>
+
+            {/* Description */}
+            {description && (
+              <p className="relative text-xs leading-relaxed text-[#003023]/75 line-clamp-3">
+                {description}
+              </p>
+            )}
+
+            {/* Features / bullets */}
+            {features && features.length > 0 && (
+              <ul className="relative space-y-1.5 text-xs text-[#003023]/80">
+                {features.slice(0, 3).map((feature, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <CheckCircle className="mt-[2px] h-3.5 w-3.5 text-[#83c441]" />
+                    <span className="leading-snug">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* Footer line */}
+            <div className="relative mt-auto pt-4 flex items-center justify-between border-t border-black/5">
+              <button
+                type="button"
+                className={[
+                  "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-wide uppercase",
+                  "bg-white/90 text-[#003023] shadow-sm",
+                  "group-hover:bg-[#f05010] group-hover:text-white transition-colors",
+                ].join(" ")}
+              >
+                <span>Explore service</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </button>
+
+              <div
+                className={[
+                  "flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium",
+                  variant.chipBg,
+                  variant.accent,
+                  "border-black/5",
+                ].join(" ")}
+              >
+                <Sparkles className="h-3 w-3" />
+                <span>{isHovered ? "See details" : "Brisk standard"}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </Link>
+    </motion.article>
   );
 }
-
-/* -----------------------------------------
-   DO NOT CHANGE — your original defaults
------------------------------------------ */
-ServiceCard.defaultProps = {
-  icon: null,
-  title: "Service Title",
-  description:
-    "Service description goes here. Provide comprehensive details about what this service offers.",
-  features: [
-    "Feature one goes here",
-    "Another important feature",
-    "Third feature description",
-  ],
-  color: "emerald",
-  delay: 0,
-};

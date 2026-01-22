@@ -50,13 +50,14 @@ export default function FooterNewsletter() {
               <Mail className="w-5 h-5 text-[#83c441]" />
             </div>
             <h3 className="text-lg font-semibold text-white">
-              Stay in the Loop
+              Brisk Farm newsletter
             </h3>
           </div>
 
           <p className="text-sm text-white/80 leading-relaxed mb-6">
-            Get occasional updates on new projects, practical farming tips and
-            modern construction insights — straight to your inbox.
+            Get curated updates on new biodigester projects, farm systems and
+            smart construction solutions — practical insights from the field,
+            not spam.
           </p>
 
           {/* Form */}
@@ -65,7 +66,7 @@ export default function FooterNewsletter() {
               <input
                 type="email"
                 required
-                placeholder="your.email@example.com"
+                placeholder="edovice@farms.co.ug"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={submitting}

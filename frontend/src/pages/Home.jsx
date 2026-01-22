@@ -4,6 +4,7 @@ import Seo from "../seo/Seo";
 import Hero from "../components/Hero.jsx";
 import api from "../lib/apiClient";
 import { Leaf, Zap, Building } from "lucide-react";
+import ProjectCard from "../components/ProjectCard.jsx";
 
 /* ---------------------------------------------
    BRAND COLORS
@@ -88,9 +89,14 @@ export default function Home() {
   const [loadingServices, setLoadingServices] = useState(true);
   const [servicesError, setServicesError] = useState("");
 
+  const [projects, setProjects] = useState([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [projectsError, setProjectsError] = useState("");
+
   useEffect(() => {
     let mounted = true;
 
+    // Services
     api
       .get("/api/v1/services")
       .then((data) => {
@@ -104,7 +110,24 @@ export default function Home() {
         setLoadingServices(false);
       });
 
-    return () => (mounted = false);
+    // Featured projects (Featured Work)
+    api
+      .get("/api/v1/projects?featured=true&limit=6")
+      .then((data) => {
+        if (!mounted) return;
+        const items = Array.isArray(data) ? data : data?.items || [];
+        setProjects(items);
+        setLoadingProjects(false);
+      })
+      .catch((err) => {
+        if (!mounted) return;
+        setProjectsError(err.message || "Failed to load projects.");
+        setLoadingProjects(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const iconMap = [Leaf, Zap, Building];
@@ -151,6 +174,9 @@ export default function Home() {
       icon: "🎯",
     },
   ];
+
+  // Featured Work: show minimum 3 projects (if available)
+  const featuredProjects = (projects || []).slice(0, 3);
 
   return (
     <>
@@ -265,21 +291,53 @@ export default function Home() {
           </div>
         </section>
 
-        {/* PROJECT GALLERY */}
+        {/* PROJECT GALLERY – FEATURED WORK */}
         <section className="py-28 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-10">
-            <h2 className="text-center text-4xl md:text-5xl font-bold text-[#003023] mb-16">
+            <h2 className="text-center text-4xl md:text-5xl font-bold text-[#003023] mb-6">
               Featured Work
             </h2>
+            <p className="text-center text-[#003023]/70 mb-12 max-w-2xl mx-auto">
+              A snapshot of biogas systems, waste management, capacity building and
+              construction projects we’ve delivered with farmers and partners across Uganda.
+            </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="h-64 bg-gradient-to-br from-[#003023] to-[#004633] rounded-2xl shadow-md"
-                />
-              ))}
-            </div>
+            {loadingProjects && (
+              <p className="text-center text-gray-600">Loading featured work…</p>
+            )}
+
+            {!loadingProjects && projectsError && (
+              <p className="text-center text-red-600">{projectsError}</p>
+            )}
+
+            {!loadingProjects && !projectsError && featuredProjects.length === 0 && (
+              <p className="text-center text-[#003023]/60">
+                Featured projects will appear here soon.
+              </p>
+            )}
+
+            {!loadingProjects && !projectsError && featuredProjects.length > 0 && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {featuredProjects.map((project, index) => (
+                    <ProjectCard
+                      key={project.id || project.slug || index}
+                      project={project}
+                      index={index}
+                    />
+                  ))}
+                </div>
+
+                <div className="mt-10 flex justify-center">
+                  <a
+                    href="/projects"
+                    className="px-8 py-3 rounded-xl border border-[#003023]/20 text-sm font-semibold text-[#003023] hover:bg-[#003023] hover:text-white transition"
+                  >
+                    View More Projects
+                  </a>
+                </div>
+              </>
+            )}
           </div>
         </section>
 
@@ -290,8 +348,8 @@ export default function Home() {
               Ready to Start Your Project?
             </h2>
             <p className="text-lg md:text-xl text-white/80 mb-10">
-              Transform your farm, business, or construction project with
-              sustainable, modern solutions.
+              Transform your farm, business, or construction project with sustainable,
+              modern solutions.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-5">
@@ -326,17 +384,17 @@ export default function Home() {
         {/* PROCESS – TREE STYLE ALTERNATING */}
         <section className="py-28 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-10">
-
             <h2 className="text-4xl md:text-5xl font-bold text-center text-[#003023] mb-20">
               Our Process
             </h2>
 
             <div className="relative max-w-5xl mx-auto">
-
               {/* Vertical Trunk Line */}
-              <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-[3px]
+              <div
+                className="hidden md:block absolute left-1/2 top-0 bottom-0 w-[3px]
                               bg-gradient-to-b from-[#83c441]/40 via-[#f0b010]/40 to-[#f05010]/40
-                              transform -translate-x-1/2" />
+                              transform -translate-x-1/2"
+              />
 
               <div className="space-y-20">
                 {processSteps.map((step, index) => {
@@ -344,7 +402,6 @@ export default function Home() {
 
                   return (
                     <div key={index} className="relative">
-
                       {/* Desktop alternating */}
                       <div className="hidden md:grid md:grid-cols-2 md:gap-8 items-center">
                         {isLeft ? (
@@ -357,7 +414,9 @@ export default function Home() {
                                 <h3 className="text-2xl font-bold text-[#003023] mb-2">
                                   {step.title}
                                 </h3>
-                                <p className="text-[#003023]/70">{step.description}</p>
+                                <p className="text-[#003023]/70">
+                                  {step.description}
+                                </p>
                               </div>
                             </div>
                             <div></div>
@@ -373,7 +432,9 @@ export default function Home() {
                                 <h3 className="text-2xl font-bold text-[#003023] mb-2">
                                   {step.title}
                                 </h3>
-                                <p className="text-[#003023]/70">{step.description}</p>
+                                <p className="text-[#003023]/70">
+                                  {step.description}
+                                </p>
                               </div>
                             </div>
                           </>
@@ -414,12 +475,9 @@ export default function Home() {
                   Get Started Today →
                 </a>
               </div>
-
             </div>
-
           </div>
         </section>
-
       </div>
     </>
   );

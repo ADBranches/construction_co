@@ -21,33 +21,41 @@ export default function Footer() {
 
   const quickLinks = [
     { name: "Home", path: "/" },
-    { name: "Services", path: "#services" },
+    { name: "Services", path: "/services" },
     { name: "Projects", path: "/projects" },
     { name: "About Us", path: "/about" },
     { name: "Contact", path: "/contact" },
-    { name: "Get Quote", path: "/quote" },
+    { name: "Request a Quote", path: "/quote" },
   ];
 
     const coreServices = [
-    "Animal Production Consultancy (Dairy, Beef, Poultry, Small Ruminants)",
-    "Farm & Household Waste Management",
-    "Biodigester Installation (Fixed Dome & Prefabricated)",
-    "Supply of Biogas Appliances",
-    "Capacity Building – Livestock & Biodigester Management",
-    "Pasture Establishment & Management",
-  ];
+      "Animal production consultancy – dairy, beef, poultry & small ruminants",
+      "Farm & household waste stream mapping & management",
+      "Biodigester installation – fixed dome & prefabricated units",
+      "Supply of biogas appliances – burners, generators, pumps & accessories",
+      "Capacity building – livestock & biodigester systems management",
+      "Pasture establishment, rehabilitation & management",
+    ];
 
   const contactInfo = [
     { icon: Phone, text: "+256 783 111 015", href: "tel:+256783111015" },
     { icon: Mail, text: "briskfarmsolutions@gmail.com", href: "mailto:briskfarmsolutions@gmail.com" },
-    { icon: MapPin, text: "Nationwide Across Uganda", href: "#" },
+    { icon: MapPin, text: "Ssenge, Wakiso • Nationwide in Uganda", href: "#" },
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
+    { icon: Facebook, href: "#", label: "Facebook" }, // to be updated later
+    {
+      icon: Twitter,
+      href: "https://x.com/brisk_company",
+      label: "@brisk_company on X (Twitter)",
+    },
+    {
+      icon: Instagram,
+      href: "https://instagram.com/briskco_",
+      label: "@briskco_ on Instagram",
+    },
+    { icon: Linkedin, href: "#", label: "LinkedIn" }, // to be updated later
   ];
 
   return (
@@ -83,17 +91,19 @@ export default function Footer() {
 
               {/* Description */}
               <p className="text-white/85 text-base md:text-lg leading-relaxed mb-10 max-w-xl">
-                We deliver innovative, sustainable farm infrastructure and construction
-                solutions across Uganda — blending modern engineering with practical,
-                future-ready design.
+                We design and build farm systems that turn waste into value — from animal
+                production units and pasture systems to biodigesters, biogas appliances and
+                modern construction. Our work maximises farm and household waste to generate
+                clean energy and bio-fertilisers for today&apos;s and tomorrow&apos;s needs.
               </p>
+
 
               {/* TRUST BADGES */}
               <div className="flex flex-wrap gap-4 mb-12">
                 {[
-                  { icon: Shield, text: "Certified Engineers", color: "#83c441" },
-                  { icon: Award, text: "5-Star Rated", color: "#f05010" },
-                  { icon: Globe, text: "Nationwide Reach", color: "#83c441" },
+                  { icon: Shield, text: "Waste-to-Energy Specialists", color: "#83c441" },
+                  { icon: Award, text: "Farmer-Trusted Projects", color: "#f05010" },
+                  { icon: Globe, text: "Nationwide Field Support", color: "#83c441" },
                 ].map((item, i) => (
                   <div
                     key={i}
@@ -116,7 +126,10 @@ export default function Footer() {
                         key={i}
                         href={social.href}
                         aria-label={social.label}
-                        className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+                        title={social.label}
+                        target={social.href === "#" ? "_self" : "_blank"}
+                        rel={social.href === "#" ? undefined : "noopener noreferrer"}
+                        className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-allduration-300 hover:scale-110"
                       >
                         <Icon className="w-6 h-6" />
                       </a>
@@ -124,6 +137,7 @@ export default function Footer() {
                   })}
                 </div>
               </div>
+
             </div>
 
             {/* QUICK LINKS */}

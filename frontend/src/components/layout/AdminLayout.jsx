@@ -1,6 +1,6 @@
 // src/components/layout/AdminLayout.jsx
-import { NavLink } from "react-router-dom";
-import { logout } from "../../lib/auth.js"; // 👈 named import
+import { NavLink, Outlet } from "react-router-dom";
+import { logout } from "../../lib/auth.js";
 
 const baseLink =
   "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-colors";
@@ -9,9 +9,9 @@ const activeLink =
 const inactiveLink =
   "text-[var(--brand-contrast)]/80 hover:bg-[var(--brand-green)]/5";
 
-function AdminLayout({ children }) {
+function AdminLayout() {
   const handleLogout = () => {
-    logout(); // handles token clear + redirect
+    logout();
   };
 
   return (
@@ -72,7 +72,10 @@ function AdminLayout({ children }) {
             </button>
           </aside>
 
-          <section className="space-y-4">{children}</section>
+          {/* 🔑 admin pages render here */}
+          <section className="space-y-4">
+            <Outlet />
+          </section>
         </div>
       </div>
     </div>

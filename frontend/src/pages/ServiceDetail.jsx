@@ -64,6 +64,12 @@ export default function ServiceDetail() {
     );
   }
 
+  // Normalize image path (fixes missing image issue)
+  const heroImage =
+    service.hero_image_url.startsWith("/")
+      ? service.hero_image_url
+      : "/" + service.hero_image_url;
+
   // ---------------------------
   // 3️⃣ Render Actual Service Content
   // ---------------------------
@@ -129,10 +135,11 @@ export default function ServiceDetail() {
               </div>
             </div>
 
+            {/* FIXED: Correct image rendering */}
             <div className="relative">
               <div className="aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 bg-[#002018]">
                 <img
-                  src={`/${service.hero_image_url}`}
+                  src={heroImage}
                   alt={service.name}
                   className="w-full h-full object-cover"
                 />
@@ -146,6 +153,7 @@ export default function ServiceDetail() {
   );
 }
 
+// (Optional future blocks can be added below)
 
       {/* (Optional) later: add gallery, stats, featured projects blocks here */}
 
