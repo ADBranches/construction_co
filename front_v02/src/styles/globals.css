@@ -1,0 +1,78 @@
+/* src/styles/globals.css */
+@import "./theme.css";
+
+/* CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+  
+html,
+body {
+  /* Brisk default typography */
+  font-family: var(--font-primary, var(--font-sans));
+  background: var(--brisk-cream, #f6fef9); /* use brand cream */
+  color: var(--brand-contrast);
+  min-height: 100%;
+  line-height: 1.5;
+}
+
+/* Utility classes */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  font-family: var(--font-secondary, var(--font-primary));
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Optional helper classes for quick usage */
+.brand-section {
+  background: linear-gradient(
+    135deg,
+    var(--brand-green),
+    var(--brand-earth)
+  );
+  color: #fdfdfd;
+}
+
+.brand-card {
+  border-radius: var(--radius);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.brand-pill {
+  border-radius: 999px;
+  background: var(--brand-yellow);
+  color: var(--brand-contrast);
+  padding: 0.35rem 0.9rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}

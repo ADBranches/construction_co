@@ -10,7 +10,9 @@ from app.api.v1 import (
     inquiries,
     users,
     testimonials,
-    subscribers
+    subscribers,
+    campaigns,
+    donations,
 )
 
 # All v1 routes will live under /api/v1
@@ -25,6 +27,8 @@ api_v1_router.include_router(inquiries.router)
 api_v1_router.include_router(users.router)
 api_v1_router.include_router(testimonials.router)
 api_v1_router.include_router(subscribers.router)
+api_v1_router.include_router(campaigns.router)
+api_v1_router.include_router(donations.router)
 
 #  When you later add testimonials/subscribers modules, you’ll extend this file:
 # from app.api.v1 import testimonials, subscribers

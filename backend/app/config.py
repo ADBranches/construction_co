@@ -24,12 +24,18 @@ class Settings(BaseSettings):
     # CORS settings
     cors_origins: List[AnyHttpUrl] | List[str] = []  # or: list[AnyHttpUrl] | list[str]
 
-    # 🔁 NEW Pydantic v2-style config
+    # ✅ PAYMENT / DONATION CONFIG (match your .env keys)
+    payment_provider_name: str = "dummy"
+    payment_webhook_secret: str = "changeme-webhook-secret"
+    payment_public_key: str | None = None
+    payment_secret_key: str | None = None
+
+
+    # 🔁 Pydantic v2-style config
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        # optional: uncomment if you want to forbid unknown env vars
-        # extra="forbid",
+        extra="ignore",  # 👈 important: don't crash on extra env vars
     )
 
     # ░░░░░░░░░░░░░░░░░░░░░
@@ -44,7 +50,9 @@ class Settings(BaseSettings):
         docker      => Docker network (db hostname)
         production  => uses docker URL unless overridden
         """
-        if self.app_env.lower() == "docker":
+        env = (self.app_env or "").lower()
+
+        if env in {"docker", "production"}:
             if not self.database_url_docker:
                 raise ValueError("DATABASE_URL_DOCKER is not set in the environment.")
             return self.database_url_docker
@@ -67,3 +75,5 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+settings = get_settings()
