@@ -1,5 +1,10 @@
 // src/lib/apiClient.js
 
+// ⚠️ LEGACY NETWORK LAYER
+// In front_v02 we are moving to a frontend-only architecture.
+// All new features should use the *Store* modules (servicesStore, projectsStore, etc.)
+// instead of calling this API client. Existing usages will be migrated feature-by-feature.
+
 // Keep this as a named export in case you want to read it elsewhere
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";

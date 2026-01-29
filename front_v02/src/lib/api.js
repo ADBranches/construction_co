@@ -1,4 +1,14 @@
 // src/lib/api.js
+
+// ⚠️ LEGACY DOMAIN API (BACKEND-BOUND)
+// In front_v02 we are migrating to frontend-only Stores:
+// - ServicesStore, ProjectsStore, TestimonialsStore, InquiriesStore, SubscribersStore,
+//   UsersStore, CampaignsStore, DonationsStore.
+// Public + admin UIs will be refactored to call Stores directly.
+// Once everything is Store-based, this module will either be removed
+// or turned into thin wrappers around the Stores.
+
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export async function apiRequest(path, options = {}) {
