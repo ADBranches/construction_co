@@ -1,6 +1,6 @@
 // src/components/FooterNewsletter.jsx
 import { useState } from "react";
-import api from "../lib/apiClient";
+import SubscribersStore from "../lib/subscribersStore";
 import { Mail, Send, CheckCircle } from "lucide-react";
 
 export default function FooterNewsletter() {
@@ -8,15 +8,16 @@ export default function FooterNewsletter() {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    const trimmed = email.trim();
+    if (!trimmed) return;
 
     setSubmitting(true);
     setStatus({ type: "", message: "" });
 
     try {
-      await api.post("/api/v1/subscribers", { email });
+      SubscribersStore.add(trimmed, "footer_form");
 
       setStatus({
         type: "success",
@@ -26,13 +27,11 @@ export default function FooterNewsletter() {
     } catch (error) {
       setStatus({
         type: "error",
-        message:
-          error?.response?.data?.message ||
-          "Something went wrong. Please try again.",
+        message: "Something went wrong. Please try again.",
       });
     } finally {
       setSubmitting(false);
-    }
+    
   };
 
   return (
@@ -129,4 +128,5 @@ export default function FooterNewsletter() {
       </div>
     </div>
   );
+}
 }

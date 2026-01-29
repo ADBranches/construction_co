@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
-import { UserAPI } from "../../lib/api";
+import UsersStore from "../../lib/usersStore";
 import AdminTable from "../../components/admin/Table";
 
 function AdminUsers() {
@@ -14,17 +14,18 @@ function AdminUsers() {
   const [savingId, setSavingId] = useState(null);
 
   const loadUsers = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await UserAPI.list();
-      setUsers(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err.message || "Failed to load users.");
-    } finally {
-      setLoading(false);
-    }
-  };
+     setLoading(true);
+     setError("");
+ 
+     try {
+       const data = UsersStore.list();
+       setUsers(Array.isArray(data) ? data : []);
+     } catch (err) {
+       setError(err?.message || "Failed to load users.");
+     } finally {
+       setLoading(false);
+     }
+   };
 
   useEffect(() => {
     loadUsers();
@@ -44,11 +45,8 @@ function AdminUsers() {
     setError("");
 
     try {
-      const updated = await UserAPI.updateRole(id, {
-        role: user.role,
-        is_superuser: user.is_superuser,
-        is_active: user.is_active,
-      });
+      // Front-only demo: persist role change via UsersStore
+      const updated = UsersStore.updateRole(id, user.role || "staff");
 
       setUsers((prev) =>
         prev.map((u) => (u.id === id ? { ...u, ...updated } : u))

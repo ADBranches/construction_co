@@ -5,6 +5,7 @@ import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
 import api from "../../lib/apiClient";
 import { authHeader } from "../../lib/auth";
 import PrimaryButton from "../../components/ui/PrimaryButton";
+import TestimonialsStore from "../../lib/testimonialsStore";
 
 function StatusToggle({ label, checked, onChange }) {
   return (
@@ -63,15 +64,22 @@ function AdminTestimonials() {
   });
   const [formMsg, setFormMsg] = useState("");
 
-  const loadTestimonials = async () => {
+  const loadTestimonials = () => {
     setLoading(true);
     setError("");
 
     try {
-      const data = await api.get("/api/v1/testimonials?is_active=", {
-        headers: authHeader(),
-      });
-      setItems(Array.isArray(data) ? data : []);
+      const data = TestimonialsStore.listAll();
+      const list = Array.isArray(data) ? data : [];
+
+      // Keep same idea as public: sorted by display_order if present
+      const sorted = [...list].sort(
+        (a, b) =>
+          (a.display_order ?? a.displayOrder ?? 0) -
+          (b.display_order ?? b.displayOrder ?? 0)
+      );
+
+      setItems(sorted);
     } catch (err) {
       setError(err.message || "Failed to load testimonials.");
     } finally {
@@ -88,20 +96,16 @@ function AdminTestimonials() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCreate = async (e) => {
+  const handleCreate = (e) => {
     e.preventDefault();
     setCreating(true);
     setFormMsg("");
 
     try {
-      await api.post(
-        "/api/v1/testimonials",
-        {
-          ...form,
-          rating: Number(form.rating) || 5,
-        },
-        { headers: authHeader() }
-      );
+      TestimonialsStore.create({
+        ...form,
+        rating: Number(form.rating) || 5,
+      });
 
       setForm({
         client_name: "",
@@ -114,7 +118,7 @@ function AdminTestimonials() {
         display_order: 0,
       });
       setFormMsg("Testimonial created successfully.");
-      await loadTestimonials();
+      loadTestimonials();
     } catch (err) {
       setFormMsg(err.message || "Failed to create testimonial.");
     } finally {
@@ -122,29 +126,23 @@ function AdminTestimonials() {
     }
   };
 
-  const handleToggleField = async (id, field, value) => {
+  const handleToggleField = (id, field, value) => {
     try {
-      await api.put(
-        `/api/v1/testimonials/${id}`,
-        { [field]: value },
-        { headers: authHeader() }
-      );
-      await loadTestimonials();
+      TestimonialsStore.update(id, { [field]: value });
+      loadTestimonials();
     } catch (err) {
       alert(err.message || "Failed to update testimonial.");
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     if (!window.confirm("Delete this testimonial? This cannot be undone.")) {
       return;
     }
 
     try {
-      await api.delete(`/api/v1/testimonials/${id}`, {
-        headers: authHeader(),
-      });
-      await loadTestimonials();
+      TestimonialsStore.remove(id);
+      loadTestimonials();
     } catch (err) {
       alert(err.message || "Failed to delete testimonial.");
     }

@@ -5,6 +5,7 @@ import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
 import api from "../../lib/apiClient";
 import { authHeader } from "../../lib/auth";
 import AdminTable from "../../components/admin/Table";
+import SubscribersStore from "../../lib/subscribersStore";
 
 function formatDate(iso) {
   if (!iso) return "-";
@@ -20,19 +21,36 @@ function AdminSubscribers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadSubscribers = async () => {
+  const loadSubscribers = () => {
     setLoading(true);
     setError("");
 
     try {
-      const data = await api.get("/api/v1/subscribers", {
-        headers: authHeader(),
+      const items = SubscribersStore.list();
+
+      // sort newest first by createdAt/created_at
+      const sorted = [...items].sort((a, b) => {
+        const aDate = new Date(a.createdAt || a.created_at || 0).getTime();
+        const bDate = new Date(b.createdAt || b.created_at || 0).getTime();
+        return bDate - aDate;
       });
-      setSubscribers(Array.isArray(data) ? data : []);
+
+      setSubscribers(sorted);
     } catch (err) {
       setError(err.message || "Failed to load subscribers.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = (id) => {
+    if (!window.confirm("Remove this subscriber?")) return;
+
+    try {
+      SubscribersStore.removeById(id);
+      loadSubscribers();
+    } catch (err) {
+      alert(err.message || "Failed to remove subscriber.");
     }
   };
 
@@ -69,13 +87,13 @@ function AdminSubscribers() {
         {/* Table */}
         {!loading && !error && (
           <AdminTable
-            columns={["Email", "Subscribed At", "Subscriber ID"]}
+            columns={["Email", "Subscribed At", "Subscriber ID", "Actions"]}
             emptyLabel="No subscribers found yet."
           >
             {subscribers.length === 0 ? (
               <tr>
                 <td
-                  colSpan={3}
+                  colSpan={4}
                   className="px-4 py-3 text-xs text-[var(--brand-contrast)]/70"
                 >
                   No subscribers found yet.
@@ -88,10 +106,19 @@ function AdminSubscribers() {
                     {sub.email}
                   </td>
                   <td className="px-4 py-3 text-xs text-[var(--brand-contrast)]/70">
-                    {formatDate(sub.created_at)}
+                    {formatDate(sub.created_at || sub.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-[10px] text-[var(--brand-contrast)]/50">
                     {sub.id}
+                  </td>
+                  <td className="px-4 py-3 text-[11px] text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(sub.id)}
+                      className="rounded-full bg-red-50 px-3 py-1 text-[10px] font-semibold text-red-700 hover:bg-red-100"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))

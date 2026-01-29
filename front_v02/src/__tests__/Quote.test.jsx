@@ -9,17 +9,15 @@ import {
 import { HelmetProvider } from "@vuer-ai/react-helmet-async";
 import Quote from "../pages/Quote.jsx";
 
-// 🔧 Global fetch mock – aligns with how apiClient.js likely works
-vi.stubGlobal(
-  "fetch",
-  vi.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve({ id: "test-inquiry-id" }),
-      text: () => Promise.resolve(JSON.stringify({ id: "test-inquiry-id" })),
-    })
-  )
-);
+// Mock InquiriesStore so we don't hit real localStorage
+vi.mock("../lib/inquiriesStore", () => ({
+  __esModule: true,
+  default: {
+    create: vi.fn(),
+  },
+}));
+
+import InquiriesStore from "../lib/inquiriesStore";
 
 function renderWithProviders(ui) {
   const helmetContext = {};
@@ -30,8 +28,7 @@ function renderWithProviders(ui) {
 
 describe("Quote page", () => {
   beforeEach(() => {
-    // Clear calls between tests but keep the same mock implementation
-    fetch.mockClear();
+    InquiriesStore.create.mockClear();
   });
 
   it("submits inquiry with source=quote", async () => {
@@ -60,24 +57,18 @@ describe("Quote page", () => {
       screen.getByRole("button", { name: /Submit Request/i })
     );
 
-    // Wait for the API call (via apiClient → fetch)
+    // Wait for the store call
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(InquiriesStore.create).toHaveBeenCalledTimes(1);
     });
 
-    const [url, options] = fetch.mock.calls[0];
-
-    // Depending on API_BASE, url may be full; just ensure it targets the right endpoint
-    expect(url).toContain("/api/v1/inquiries");
-
-    // apiClient likely sends JSON body
-    const body = JSON.parse(options.body);
+    const [payload] = InquiriesStore.create.mock.calls[0];
 
     // Ensure the payload contains our fields and source=quote
-    expect(body.full_name).toBe("Test Client");
-    expect(body.email).toBe("client@example.com");
-    expect(body.project_type).toBe("biodigester_installation");
-    expect(body.message).toBe("I need a biogas system.");
-    expect(body.source).toBe("quote");
+    expect(payload.full_name).toBe("Test Client");
+    expect(payload.email).toBe("client@example.com");
+    expect(payload.project_type).toBe("biodigester_installation");
+    expect(payload.message).toBe("I need a biogas system.");
+    expect(payload.source).toBe("quote");
   });
 });

@@ -1,8 +1,8 @@
 // src/components/ServiceCard.jsx
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle, Zap, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle, Sparkles } from "lucide-react";
 
 export default function ServiceCard({
   icon: IconComponent,
@@ -11,11 +11,35 @@ export default function ServiceCard({
   features = [],
   color = "emerald",
   delay = 0,
-  slug,      // /services/:slug
-  tagline,   // short punchline
-  imageUrl,  // NEW: hero image from backend / fallback
+  slug,             // /services/:slug
+  tagline,          // short punchline
+  imageUrl,         // legacy single image
+  galleryImages = [], // 🔁 NEW: array of images for animation
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [frameIndex, setFrameIndex] = useState(0);
+
+  // Build list of images to use
+  const frames = (() => {
+    if (Array.isArray(galleryImages) && galleryImages.length > 0) {
+      return galleryImages;
+    }
+    if (imageUrl) return [imageUrl];
+    return [];
+  })();
+
+  // Auto-rotate frames (pauses on hover)
+  useEffect(() => {
+    if (!frames.length || frames.length === 1 || isHovered) return;
+
+    const id = setInterval(() => {
+      setFrameIndex((prev) => (prev + 1) % frames.length);
+    }, 4500); // ~4.5s per frame
+
+    return () => clearInterval(id);
+  }, [frames.length, isHovered]);
+
+  const currentSrc = frames[frameIndex] || imageUrl || "";
 
   // Color variants
   const colorVariants = {
@@ -67,16 +91,22 @@ export default function ServiceCard({
           ].join(" ")}
         >
           {/* Top image / hero */}
-          {imageUrl && (
+          {currentSrc && (
             <div className="relative h-52 w-full overflow-hidden rounded-3xl">
-              <img
-                src={imageUrl}
+              <motion.img
+                key={currentSrc} // force fade on change
+                src={currentSrc}
                 alt={title}
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="h-full w-full object-cover"
               />
+
               {/* Soft gradient overlay */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
+
               {/* Tagline overlay */}
               {tagline && (
                 <div className="pointer-events-none absolute bottom-3 left-4 right-4">
@@ -85,6 +115,7 @@ export default function ServiceCard({
                   </p>
                 </div>
               )}
+
               {/* Floating icon chip */}
               {IconComponent && (
                 <div className="absolute left-4 top-4 flex items-center gap-2">
@@ -96,6 +127,23 @@ export default function ServiceCard({
                   >
                     <IconComponent className="h-5 w-5 text-white" />
                   </div>
+                </div>
+              )}
+
+              {/* Tiny frame dots – optional */}
+              {frames.length > 1 && (
+                <div className="absolute bottom-2 right-4 flex gap-1">
+                  {frames.map((_, i) => (
+                    <span
+                      key={i}
+                      className={[
+                        "h-1.5 w-1.5 rounded-full bg-white/40",
+                        i === frameIndex && "w-3 bg-white",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    />
+                  ))}
                 </div>
               )}
             </div>
@@ -113,7 +161,7 @@ export default function ServiceCard({
               <h3 className="text-lg font-bold text-[#003023] group-hover:text-[#f05010] transition-colors line-clamp-2">
                 {title}
               </h3>
-              {tagline && !imageUrl && (
+              {tagline && !currentSrc && (
                 <p className="mt-1 text-xs font-medium text-[#003023]/70 line-clamp-2">
                   {tagline}
                 </p>

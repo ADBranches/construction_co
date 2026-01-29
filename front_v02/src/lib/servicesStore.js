@@ -1,15 +1,23 @@
 // src/lib/servicesStore.js
-// Front-only “fake backend” for Services domain.
-
 import localStore from "./localStore";
 import servicesSeed from "../data/servicesData";
 
-const STORAGE_KEY = "brisk_services_v1";
+//  bump version so we ignore old empty localStorage data
+const STORAGE_KEY = "brisk_services_v3";
 
 function ensureInit() {
-  // Always treat seed as an array
   const safeSeed = Array.isArray(servicesSeed) ? servicesSeed : [];
-  return localStore.initWithSeed(STORAGE_KEY, safeSeed);
+
+  const items = localStore.initWithSeed(STORAGE_KEY, safeSeed);
+
+  // For this marketing site, we never want a permanently empty list.
+  // If something wrote [], reseed from file.
+  if (!Array.isArray(items) || items.length === 0) {
+    localStore.clear(STORAGE_KEY);
+    return localStore.initWithSeed(STORAGE_KEY, safeSeed);
+  }
+
+  return items;
 }
 
 function list() {
@@ -26,14 +34,10 @@ function getBySlug(slug) {
   return items.find((item) => item.slug === slug) || null;
 }
 
-/**
- * Return a small set of “featured” services.
- * - If items have `isFeatured` flag → use that.
- * - Otherwise just take the first N.
- */
 function getFeatured(limit = 3) {
   const items = ensureInit();
-  const featured = items.filter((item) => item.isFeatured);
+  const featured = items.filter((item) => item.isFeatured || item.is_featured);
+
   if (featured.length >= limit) return featured.slice(0, limit);
   return items.slice(0, limit);
 }
@@ -87,9 +91,6 @@ function remove(id) {
   return changed;
 }
 
-/**
- * Reset Services back to seed. Good for tests / “Reset demo data”.
- */
 function reset() {
   localStore.clear(STORAGE_KEY);
   return ensureInit();

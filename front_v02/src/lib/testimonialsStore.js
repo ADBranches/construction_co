@@ -17,7 +17,22 @@ function listAll() {
 
 function listPublic() {
   const items = ensureInit();
-  return items.filter((t) => t.isActive !== false);
+
+  return items
+    .filter((t) => {
+      // Support both camelCase and snake_case flags
+      const camel = t.isActive;
+      const snake = t.is_active;
+
+      // Default = active unless explicitly false
+      if (camel === false || snake === false) return false;
+      return true;
+    })
+    .sort(
+      (a, b) =>
+        (a.display_order ?? a.displayOrder ?? 9999) -
+        (b.display_order ?? b.displayOrder ?? 9999)
+    );
 }
 
 function create(payload) {

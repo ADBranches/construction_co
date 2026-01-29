@@ -5,6 +5,7 @@ import { authHeader } from "../../lib/auth";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
 import InquiriesTable from "../../components/admin/InquiriesTable";
+import InquiriesStore from "../../lib/inquiriesStore";
 
 function AdminInquiries() {
   useRequireAdmin();
@@ -18,39 +19,36 @@ function AdminInquiries() {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  const loadInquiries = async () => {
+  const loadInquiries = () => {
     setLoading(true);
     setError("");
 
     try {
-      const params = new URLSearchParams();
+      // Start from store
+      let items = InquiriesStore.list();
 
+      // Filter by status
       if (statusFilter !== "all") {
-        params.append("status", statusFilter);
+        items = items.filter((q) => q.status === statusFilter);
       }
 
+      // Filter by source
       if (sourceFilter !== "all") {
-        params.append("source", sourceFilter);
+        items = items.filter((q) => q.source === sourceFilter);
       }
 
+      // Text search on name / email / message
       if (search.trim()) {
-        params.append("search", search.trim());
+        const q = search.trim().toLowerCase();
+        items = items.filter((item) => {
+          return (
+            (item.full_name || "").toLowerCase().includes(q) ||
+            (item.email || "").toLowerCase().includes(q) ||
+            (item.message || "").toLowerCase().includes(q)
+          );
+        });
       }
 
-      // keep your old behavior: cap to 100, good for admin table
-      params.append("limit", "100");
-
-      const queryString = params.toString();
-      const path = queryString
-        ? `/api/v1/inquiries?${queryString}`
-        : "/api/v1/inquiries";
-
-      const payload = await api.get(path, {
-        headers: authHeader(),
-      });
-
-      // harmonized: support both array OR paginated { items: [...] }
-      const items = Array.isArray(payload) ? payload : payload?.items || [];
       setInquiries(items);
     } catch (err) {
       setError(err.message || "Failed to load inquiries.");
@@ -64,28 +62,19 @@ function AdminInquiries() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, sourceFilter, search]);
 
-  const handleStatusChange = async (id, newStatus) => {
+  const handleStatusChange = (id, newStatus) => {
     try {
-      // mini-CRM style: use InquiryUpdate via PUT
-      await api.put(
-        `/api/v1/inquiries/${id}`,
-        { status: newStatus },
-        { headers: authHeader() }
-      );
-      await loadInquiries();
+      InquiriesStore.updateStatus(id, newStatus);
+      loadInquiries();
     } catch (err) {
       alert(err.message || "Failed to update status.");
     }
   };
 
-  const handleSaveNotes = async (id, notes) => {
+  const handleSaveNotes = (id, notes) => {
     try {
-      await api.put(
-        `/api/v1/inquiries/${id}`,
-        { internal_notes: notes },
-        { headers: authHeader() }
-      );
-      await loadInquiries();
+      InquiriesStore.update(id, { internal_notes: notes });
+      loadInquiries();
     } catch (err) {
       alert(err.message || "Failed to save notes.");
     }

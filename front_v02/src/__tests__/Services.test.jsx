@@ -5,15 +5,15 @@ import { HelmetProvider } from "@vuer-ai/react-helmet-async";
 import { MemoryRouter } from "react-router-dom";
 import Services from "../pages/Services.jsx";
 
-// Mock api client – path must match Services.jsx import ("../lib/apiClient")
-vi.mock("../lib/apiClient", () => ({
+// Mock ServicesStore – path must match Services.jsx import
+vi.mock("../lib/servicesStore", () => ({
   __esModule: true,
   default: {
-    get: vi.fn(),
+    list: vi.fn(),
   },
 }));
 
-import api from "../lib/apiClient";
+import ServicesStore from "../lib/servicesStore";
 
 function renderWithProviders(ui) {
   const helmetContext = {};
@@ -26,13 +26,23 @@ function renderWithProviders(ui) {
   );
 }
 
+// Mock API module
+vi.mock("../lib/api", () => ({
+  __esModule: true,
+  default: {
+    get: vi.fn(),
+  },
+}));
+
+import api from "../lib/api";
+
 describe("Services page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders services from API", async () => {
-    api.get.mockResolvedValueOnce([
+  it("renders services from store", async () => {
+    ServicesStore.list.mockReturnValueOnce([
       {
         id: "1",
         name: "Biogas Systems",
@@ -43,14 +53,13 @@ describe("Services page", () => {
 
     renderWithProviders(<Services />);
 
-    // Assert on a unique, static bit of text from the hero/intro
     expect(
       screen.getByText("Integrated Farm & Construction Solutions")
     ).toBeInTheDocument();
 
-    // Wait for API-loaded service to appear
     await waitFor(() => {
       expect(screen.getByText("Biogas Systems")).toBeInTheDocument();
     });
   });
+
 });

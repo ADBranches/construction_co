@@ -1,7 +1,7 @@
 // src/components/Testimonials.jsx
 import { useEffect, useState } from "react";
 import { MessageCircle, Quote, Star } from "lucide-react";
-import { TestimonialsAPI } from "../lib/api";
+import TestimonialsStore from "../lib/testimonialsStore";
 
 function StarRow({ rating = 5 }) {
   const safeRating = Number.isFinite(rating) ? rating : 5;
@@ -28,23 +28,22 @@ export default function Testimonials({ limit }) {
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchTestimonials() {
+    function fetchTestimonials() {
       setLoading(true);
       try {
-        const data = await TestimonialsAPI.listPublic();
+        const data = TestimonialsStore.listPublic();
         if (cancelled) return;
 
-        const list = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.items)
-          ? data.items
-          : [];
-
+        const list = Array.isArray(data) ? data : [];
         setItems(limit ? list.slice(0, limit) : list);
       } catch {
-        if (!cancelled) setItems([]);
+        if (!cancelled) {
+          setItems([]);
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
@@ -53,6 +52,7 @@ export default function Testimonials({ limit }) {
       cancelled = true;
     };
   }, [limit]);
+
 
   if (loading && items.length === 0) {
     return null;

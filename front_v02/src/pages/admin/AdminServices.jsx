@@ -6,6 +6,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import Modal from "../../components/ui/Modal";
+import ServicesStore from "../../lib/servicesStore"; 
 
 function AdminServices() {
   useRequireAdmin();
@@ -25,13 +26,11 @@ function AdminServices() {
   // 🔹 Edit modal state
   const [editing, setEditing] = useState(null);
 
-  const loadServices = async () => {
+  const loadServices = () => {
     setLoading(true);
     try {
-      const data = await api.get("/api/v1/services", {
-        headers: authHeader(),
-      });
-      setServices(data);
+      const items = ServicesStore.list();
+      setServices(Array.isArray(items) ? items : []);
       setError("");
     } catch (err) {
       setError(err.message || "Failed to load services.");
@@ -49,15 +48,13 @@ function AdminServices() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCreate = async (e) => {
+  const handleCreate = (e) => {
     e.preventDefault();
     setCreating(true);
     setFormMsg("");
 
     try {
-      await api.post("/api/v1/services", form, {
-        headers: authHeader(),
-      });
+      ServicesStore.create(form);
 
       setForm({ name: "", slug: "", short_description: "" });
       setFormMsg("Service created successfully.");
@@ -82,22 +79,18 @@ function AdminServices() {
   };
 
   // 🔹 Save edits
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = () => {
     if (!editing) return;
 
     try {
-      // Only send editable fields, not the whole object
       const payload = {
         name: editing.name,
         short_description: editing.short_description || "",
       };
 
-      await api.put(`/api/v1/services/${editing.id}`, payload, {
-        headers: authHeader(),
-      });
-
+      ServicesStore.update(editing.id, payload);
       setEditing(null);
-      await loadServices();
+      loadServices();
     } catch (err) {
       setError(err.message || "Failed to update service.");
     }

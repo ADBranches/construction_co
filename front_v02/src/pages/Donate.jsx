@@ -2,7 +2,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import Seo from "../seo/Seo";
-import api from "../lib/apiClient";
+import CampaignsStore from "../lib/campaignsStore";
+import DonationsStore from "../lib/donationsStore";
 import DonationForm from "../components/donations/DonationForm";
 import DonationSummary from "../components/donations/DonationSummary";
 import DonationSuccess from "../components/donations/DonationSuccess";
@@ -50,39 +51,32 @@ export default function Donate() {
     }));
   }, [searchParams]);
 
-  // Load campaigns from backend
+  // Load campaigns from front-only store
   useEffect(() => {
-    let mounted = true;
     setLoadingCampaigns(true);
     setCampaignsError("");
 
-    api
-      .get("/api/v1/campaigns")
-      .then((data) => {
-        if (!mounted) return;
-        const items = Array.isArray(data) ? data : data?.items || [];
-        setCampaigns(items);
-        setLoadingCampaigns(false);
+    try {
+      const items = CampaignsStore.getActive();
+      setCampaigns(items);
+      setLoadingCampaigns(false);
 
-        // If we had a slug hint from query, map it to a real id once
-        if (form.campaign_id || !form.campaign_slug_hint) return;
-        const match = items.find((c) => c.slug === form.campaign_slug_hint);
+      // If we had a slug hint from query, map it to a real id once
+      if (!form.campaign_id && form.campaign_slug_hint) {
+        const match = items.find(
+          (c) => c.slug === form.campaign_slug_hint
+        );
         if (match) {
           setForm((prev) => ({
             ...prev,
             campaign_id: match.id,
           }));
         }
-      })
-      .catch((err) => {
-        if (!mounted) return;
-        setCampaignsError(err.message || "Failed to load campaigns.");
-        setLoadingCampaigns(false);
-      });
-
-    return () => {
-      mounted = false;
-    };
+      }
+    } catch (err) {
+      setCampaignsError(err?.message || "Failed to load campaigns.");
+      setLoadingCampaigns(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -156,14 +150,24 @@ export default function Donate() {
       is_anonymous: form.is_anonymous,
       message: form.message || null,
       campaign_id: form.campaign_id || null,
+      status: "confirmed", // front-only mode: treat as immediately confirmed
     };
 
     try {
-      const data = await api.post("/api/v1/donations", payload);
-      setIntentResult(data);
+      const donation = DonationsStore.create(payload);
+
+      const fakeIntent = {
+        donation,
+        payment_url: null,
+        provider_session_id: null,
+      };
+
+      setIntentResult(fakeIntent);
       setStep("success");
     } catch (err) {
-      setApiError(err.message || "Failed to create donation. Please try again.");
+      setApiError(
+        err?.message || "Failed to create donation. Please try again."
+      );
       setStep("error");
     } finally {
       setSubmitting(false);

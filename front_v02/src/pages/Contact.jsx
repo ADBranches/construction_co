@@ -3,6 +3,7 @@ import { useState } from "react";
 import Seo from "../seo/Seo";
 import api from "../lib/apiClient";
 import PrimaryButton from "../components/ui/PrimaryButton";
+import InquiriesStore from "../lib/inquiriesStore";
 import { 
   MapPin, 
   Phone, 
@@ -33,13 +34,17 @@ function Contact() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
     setStatus("");
 
     try {
-      await api.post("/api/v1/inquiries", form);
+      InquiriesStore.create({
+        ...form,
+        source: "contact",
+      });
+
       setStatus("success");
       setIsSubmitted(true);
       setForm({

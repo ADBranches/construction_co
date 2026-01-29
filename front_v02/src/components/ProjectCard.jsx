@@ -1,13 +1,15 @@
 // src/components/ProjectCard.jsx
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, ArrowRight, CheckCircle } from "lucide-react";
 
 /**
  * project is expected to come from ProjectBrief / ProjectOut:
  * {
- *   id, name, slug, location, status, is_featured,
- *   cover_image_url, hero_image_url, short_description, client_name
+ *   id, name, slug, status, is_featured,
+ *   cover_image_url, hero_image_url, short_description, client_name,
+ *   gallery_images?: string[]
  * }
  */
 export default function ProjectCard({ project, index = 0 }) {
@@ -34,16 +36,36 @@ export default function ProjectCard({ project, index = 0 }) {
     return lower.charAt(0).toUpperCase() + lower.slice(1);
   };
 
-  // Prefer cover_image_url, then hero_image_url, then a branded fallback
-  const imageSrc =
+  // ✅ Build gallery from project.gallery_images (or fall back to single image)
+  const fallbackImage =
     project?.cover_image_url ||
     project?.hero_image_url ||
     "/images/projects/biodigester-installation_01.webp";
 
+  const images =
+    Array.isArray(project?.gallery_images) && project.gallery_images.length > 0
+      ? project.gallery_images
+      : [fallbackImage];
+
   const name = project?.name || "Brisk Farm Project";
   const shortDescription = project?.short_description || "";
-  const location = project?.location;
+  const location = project?.location; // will be undefined now → pill hides
   const clientName = project?.client_name;
+
+  // 🔁 Local slider state
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Autoplay: advance every 5s when not hovered and there’s more than 1 image
+  useEffect(() => {
+    if (images.length <= 1 || isHovered) return;
+
+    const id = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
+
+    return () => clearInterval(id);
+  }, [images.length, isHovered]);
 
   return (
     <motion.div
@@ -55,19 +77,28 @@ export default function ProjectCard({ project, index = 0 }) {
         transition: { type: "spring", stiffness: 260, damping: 22 },
       }}
       className="group relative overflow-hidden rounded-3xl bg-white shadow-lg hover:shadow-2xl transition-shadow duration-300"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Gradient halo */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#83c441]/10 group-hover:via-[#f05010]/5 group-hover:to-[#003023]/10 transition-all duration-500" />
 
       <div className="relative z-10">
-        {/* Image */}
+        {/* IMAGE AREA WITH CROSSFADE */}
         <div className="relative overflow-hidden rounded-t-3xl">
           <div className="relative h-56 md:h-64 overflow-hidden">
-            <img
-              src={imageSrc}
-              alt={name}
-              className="h-full w-full object-cover transition-all duration-700 group-hover:scale-110"
-            />
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={images[activeIndex]}
+                src={images[activeIndex]}
+                alt={name}
+                className="h-full w-full object-cover"
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.6 }}
+              />
+            </AnimatePresence>
 
             {/* Dark overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
@@ -94,7 +125,7 @@ export default function ProjectCard({ project, index = 0 }) {
             </div>
           )}
 
-          {/* Location pill */}
+          {/* Location pill – will disappear now because location is removed */}
           {location && (
             <div className="absolute top-4 right-4">
               <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md flex items-center gap-1.5">
@@ -103,6 +134,22 @@ export default function ProjectCard({ project, index = 0 }) {
                   {location}
                 </span>
               </div>
+            </div>
+          )}
+
+          {/* Small dot indicators for gallery */}
+          {images.length > 1 && (
+            <div className="absolute bottom-3 inset-x-0 flex justify-center gap-1.5">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveIndex(i)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === activeIndex ? "w-5 bg-white" : "w-2 bg-white/50"
+                  }`}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -154,8 +201,6 @@ ProjectCard.defaultProps = {
     name: "Brisk Farm Project",
     cover_image_url: "/images/projects/biodigester-installation_01.webp",
     status: "COMPLETED",
-    location: "Uganda",
-    client_name: "",
     short_description: "",
   },
   index: 0,

@@ -1,7 +1,8 @@
 // src/pages/admin/AdminDonations.jsx
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
-import api from "../../lib/apiClient";
+import CampaignsStore from "../../lib/campaignsStore";
+import DonationsStore from "../../lib/donationsStore";
 
 const STATUS_OPTIONS = ["pending", "confirmed", "failed", "refunded"];
 
@@ -21,36 +22,36 @@ export default function AdminDonations() {
     max_amount: "",
   });
 
-  const loadCampaigns = async () => {
+  const loadCampaigns = () => {
     try {
-      const data = await api.get("/api/v1/campaigns");
-      const items = Array.isArray(data) ? data : data?.items || [];
+      const items = CampaignsStore.list();
       setCampaigns(items);
     } catch {
       // ignore, admin can still see donations
     }
   };
 
-  const loadDonations = async () => {
+  const loadDonations = () => {
     setLoading(true);
     setError("");
 
     try {
-      const params = new URLSearchParams();
+      const items = DonationsStore.filterDonations({
+        campaignId: filters.campaign_id || undefined,
+        status: filters.status || undefined,
+        dateFrom: filters.date_from || undefined,
+        dateTo: filters.date_to || undefined,
+        minAmount: filters.min_amount
+          ? Number(filters.min_amount)
+          : undefined,
+        maxAmount: filters.max_amount
+          ? Number(filters.max_amount)
+          : undefined,
+      });
 
-      if (filters.campaign_id) params.set("campaign_id", filters.campaign_id);
-      if (filters.status) params.set("status", filters.status);
-      if (filters.date_from) params.set("date_from", filters.date_from);
-      if (filters.date_to) params.set("date_to", filters.date_to);
-      if (filters.min_amount) params.set("min_amount", filters.min_amount);
-      if (filters.max_amount) params.set("max_amount", filters.max_amount);
-
-      const query = params.toString() ? `?${params.toString()}` : "";
-      const data = await api.get(`/api/v1/donations${query}`);
-      const items = Array.isArray(data) ? data : data?.items || [];
       setDonations(items);
     } catch (err) {
-      setError(err.message || "Failed to load donations.");
+      setError(err?.message || "Failed to load donations.");
     } finally {
       setLoading(false);
     }
@@ -268,7 +269,7 @@ export default function AdminDonations() {
                   return (
                     <tr key={d.id} className="border-t border-slate-100">
                       <td className="px-3 py-2 text-slate-700">
-                        {formatDate(d.created_at)}
+                        {formatDate(d.createdAt || d.created_at)}
                       </td>
                       <td className="px-3 py-2 text-slate-700">
                         {campaign?.name || "General support"}

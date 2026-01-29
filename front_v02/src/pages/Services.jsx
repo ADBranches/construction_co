@@ -5,6 +5,7 @@ import api from "../lib/apiClient";
 import Seo from "../seo/Seo";
 import ServiceCard from "../components/ServiceCard";
 import { Leaf, Zap, Building } from "lucide-react";
+import ServicesStore from "../lib/servicesStore"; // 👈 NEW
 
 /**
  * Fallback hero images for services where backend hero_image_url
@@ -55,29 +56,34 @@ function Services() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    let isMounted = true;
+    useEffect(() => {
+      let isMounted = true;
 
-    api
-      .get("/api/v1/services")
-      .then((data) => {
+      try {
+        const items = ServicesStore.list();
         if (!isMounted) return;
 
-        const items = Array.isArray(data) ? data : data?.items || [];
-        setServices(items);
-        setLoading(false);
-      })
-      .catch((err) => {
+        setTimeout(() => {
+          if (isMounted) {
+            setServices(Array.isArray(items) ? items : []);
+            setLoading(false);
+          }
+        }, 0);
+      } catch (err) {
         if (!isMounted) return;
 
-        setError(err.message || "Failed to load services.");
-        setLoading(false);
-      });
+        setTimeout(() => {
+          if (isMounted) {
+            setError(err.message || "Failed to load services.");
+            setLoading(false);
+          }
+        }, 0);
+      }
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+      return () => {
+        isMounted = false;
+      };
+    }, []);
 
   return (
     <>
@@ -258,6 +264,14 @@ function Services() {
                   SERVICE_HERO_MAP[service.slug] ||
                   null;
 
+                // 🔁 IMPORTANT: use service.gallery_images (snake_case)
+                const galleryImages =
+                  Array.isArray(service.gallery_images) && service.gallery_images.length > 0
+                    ? service.gallery_images
+                    : imageUrl
+                    ? [imageUrl]
+                    : [];
+
                 return (
                   <div
                     key={service.id}
@@ -280,10 +294,12 @@ function Services() {
                       delay={index * 0.05}
                       slug={service.slug}
                       imageUrl={imageUrl}
+                      galleryImages={service.gallery_images}
                     />
                   </div>
                 );
               })}
+
             </div>
           )}
 

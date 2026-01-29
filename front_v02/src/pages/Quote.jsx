@@ -1,6 +1,6 @@
 // src/pages/Quote.jsx
 import { useState } from "react";
-import api from "../lib/apiClient.js";
+import InquiriesStore from "../lib/inquiriesStore.js";
 import PrimaryButton from "../components/ui/PrimaryButton.jsx";
 import Seo from "../seo/Seo.jsx";
 import {
@@ -38,16 +38,21 @@ function Quote() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitting(true);
     setFeedback("");
 
     try {
-      await api.post("/api/v1/inquiries", { ...form, source: "quote" });
+      InquiriesStore.create({
+        ...form,
+        source: "quote",
+      });
 
       setFeedbackType("success");
-      setFeedback("Request submitted! Our engineers will respond within 24 hours.");
+      setFeedback(
+        "Request submitted! Our engineers will respond within 24 hours."
+      );
 
       setForm({
         full_name: "",

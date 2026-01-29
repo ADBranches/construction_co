@@ -3,9 +3,11 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import Seo from "../seo/Seo";
 import Hero from "../components/Hero.jsx";
-import api from "../lib/apiClient";
 import { Leaf, Zap, Building } from "lucide-react";
 import ProjectCard from "../components/ProjectCard.jsx";
+import ServicesStore from "../lib/servicesStore";
+import ProjectsStore from "../lib/projectsStore";
+import ServiceCard from "../components/ServiceCard.jsx";
 
 /* ---------------------------------------------
    BRAND COLORS
@@ -99,42 +101,46 @@ export default function Home() {
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [projectsError, setProjectsError] = useState("");
 
-  useEffect(() => {
-    let mounted = true;
+    useEffect(() => {
+      let mounted = true;
 
-    // Services
-    api
-      .get("/api/v1/services")
-      .then((data) => {
-        if (!mounted) return;
-        setServices(Array.isArray(data) ? data : data?.items || []);
-        setLoadingServices(false);
-      })
-      .catch((err) => {
-        if (!mounted) return;
-        setServicesError(err.message || "Failed to load services.");
-        setLoadingServices(false);
-      });
+      const fetchServices = () => {
+        try {
+          const items = ServicesStore.getFeatured(3);
+          if (mounted) {
+            setServices(items);
+            setLoadingServices(false);
+          }
+        } catch (err) {
+          if (mounted) {
+            setServicesError(err.message || "Failed to load services.");
+            setLoadingServices(false);
+          }
+        }
+      };
 
-    // Featured projects (Featured Work)
-    api
-      .get("/api/v1/projects?featured=true&limit=6")
-      .then((data) => {
-        if (!mounted) return;
-        const items = Array.isArray(data) ? data : data?.items || [];
-        setProjects(items);
-        setLoadingProjects(false);
-      })
-      .catch((err) => {
-        if (!mounted) return;
-        setProjectsError(err.message || "Failed to load projects.");
-        setLoadingProjects(false);
-      });
+      const fetchProjects = () => {
+        try {
+          const items = ProjectsStore.getFeatured(6);
+          if (mounted) {
+            setProjects(items);
+            setLoadingProjects(false);
+          }
+        } catch (err) {
+          if (mounted) {
+            setProjectsError(err.message || "Failed to load projects.");
+            setLoadingProjects(false);
+          }
+        }
+      };
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
+      fetchServices();
+      fetchProjects();
+
+      return () => {
+        mounted = false;
+      };
+    }, []);
 
   const iconMap = [Leaf, Zap, Building];
 
@@ -253,59 +259,45 @@ export default function Home() {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {loadingServices && (
-                <p className="col-span-full text-center text-gray-600">
-                  Loading services…
-                </p>
-              )}
+            {loadingServices && (
+              <p className="col-span-full text-center text-gray-600">
+                Loading services…
+              </p>
+            )}
 
-              {!loadingServices &&
-                !servicesError &&
-                featuredServices.map((service, index) => {
-                  const Icon = service.icon;
+            {!loadingServices &&
+              !servicesError &&
+              featuredServices.map((service, index) => {
+                const Icon = service.icon;
 
-                  return (
-                    <div
-                      key={service.id || index}
-                      className="group bg-white rounded-3xl border border-gray-200 shadow-md hover:shadow-2xl p-7 md:p-8 transition relative"
-                    >
-                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#83c441]/10 to-[#f05010]/10 opacity-0 group-hover:opacity-100 transition" />
+                // hero image from seed (you already set hero_image_url on each service)
+                const imageUrl = service.hero_image_url || null;
 
-                      <div className="relative">
-                        <div className="w-14 h-14 bg-[#003023] rounded-2xl flex items-center justify-center mb-5 shadow">
-                          <Icon className="w-7 h-7 text-white" />
-                        </div>
+                return (
+                  <ServiceCard
+                    key={service.id || index}
+                    icon={Icon}
+                    title={service.name}
+                    description={
+                      service.short_description || service.description || ""
+                    }
+                    tagline={service.tagline}
+                    // we don’t have highlights yet, so this will be an empty array for now
+                    features={[
+                      service.highlight_1,
+                      service.highlight_2,
+                      service.highlight_3,
+                    ].filter(Boolean)}
+                    color={index === 0 ? "emerald" : index === 1 ? "orange" : "blue"}
+                    delay={index * 0.05}
+                    slug={service.slug}
+                    imageUrl={imageUrl}
+                    galleryImages={service.gallery_images}
+                  />
+                );
+              })}
+          </div>
 
-                        <h3 className="text-xl md:text-2xl font-bold text-[#003023] mb-3 group-hover:text-[#f05010]">
-                          {service.name}
-                        </h3>
-
-                        <p className="text-sm md:text-base text-[#003023]/70 mb-6">
-                          {service.short_description ||
-                            service.description ||
-                            "Tailored solution for your next project."}
-                        </p>
-
-                        {service.slug ? (
-                          <Link
-                            to={`/services/${service.slug}`}
-                            className="text-sm md:text-base text-[#003023] font-semibold hover:text-[#f05010]"
-                          >
-                            Learn More →
-                          </Link>
-                        ) : (
-                          <a
-                            href="/services"
-                            className="text-sm md:text-base text-[#003023] font-semibold hover:text-[#f05010]"
-                          >
-                            Learn More →
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
 
             {!loadingServices && servicesError && (
               <p className="text-center text-red-600 mt-5 text-sm">

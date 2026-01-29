@@ -1,23 +1,25 @@
 // src/lib/projectsStore.js
-// Front-only store for Projects domain.
-
 import localStore from "./localStore";
 import projectsSeed from "../data/projectsData";
 
-const STORAGE_KEY = "brisk_projects_v1";
+const STORAGE_KEY = "brisk_projects_v3";
 
 function ensureInit() {
   const safeSeed = Array.isArray(projectsSeed) ? projectsSeed : [];
-  return localStore.initWithSeed(STORAGE_KEY, safeSeed);
+  const items = localStore.initWithSeed(STORAGE_KEY, safeSeed);
+
+  if (!Array.isArray(items) || items.length === 0) {
+    localStore.clear(STORAGE_KEY);
+    return localStore.initWithSeed(STORAGE_KEY, safeSeed);
+  }
+
+  return items;
 }
 
 function list() {
-  return ensureInit();
-}
-
-function getById(id) {
   const items = ensureInit();
-  return items.find((p) => p.id === id) || null;
+  // Only active projects
+  return items.filter((p) => p.is_active !== false);
 }
 
 function getBySlug(slug) {
@@ -26,8 +28,9 @@ function getBySlug(slug) {
 }
 
 function getFeatured(limit = 3) {
-  const items = ensureInit();
-  const featured = items.filter((p) => p.isFeatured);
+  const items = list();
+  const featured = items.filter((p) => p.is_featured || p.isFeatured);
+
   if (featured.length >= limit) return featured.slice(0, limit);
   return items.slice(0, limit);
 }
@@ -35,9 +38,10 @@ function getFeatured(limit = 3) {
 function create(payload) {
   const items = ensureInit();
   const now = new Date().toISOString();
+
   const id =
     payload.id ||
-    `proj_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    `prj_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
   const record = {
     ...payload,
@@ -55,12 +59,12 @@ function update(id, changes) {
   const items = ensureInit();
   let updated = null;
 
-  const next = items.map((p) => {
-    if (p.id !== id) return p;
+  const next = items.map((item) => {
+    if (item.id !== id) return item;
     updated = {
-      ...p,
+      ...item,
       ...changes,
-      id: p.id,
+      id: item.id,
       updatedAt: new Date().toISOString(),
     };
     return updated;
@@ -72,7 +76,7 @@ function update(id, changes) {
 
 function remove(id) {
   const items = ensureInit();
-  const next = items.filter((p) => p.id !== id);
+  const next = items.filter((item) => item.id !== id);
   const changed = next.length !== items.length;
   if (changed) {
     localStore.save(STORAGE_KEY, next);
@@ -87,7 +91,6 @@ function reset() {
 
 const ProjectsStore = {
   list,
-  getById,
   getBySlug,
   getFeatured,
   create,

@@ -4,33 +4,23 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminServices from "../pages/admin/AdminServices.jsx";
 
-// Mock fetch globally to behave like a real Response
-vi.stubGlobal("fetch", (url, opts) => {
-  // Mock the services list endpoint
-  if (typeof url === "string" && url.includes("/api/v1/services")) {
-    return Promise.resolve({
-      ok: true,
-      status: 200,
-      json: async () => [
-        {
-          id: "1",
-          name: "BioGas",
-          slug: "biogas",
-          short_description: "desc",
-        },
-      ],
-      text: async () => "", // used only on error path
-    });
-  }
-
-  // Default mock for any other fetch
-  return Promise.resolve({
-    ok: true,
-    status: 200,
-    json: async () => ({}),
-    text: async () => "",
-  });
-});
+// Mock ServicesStore – this replaces any real localStorage/logic during the test
+vi.mock("../lib/servicesStore", () => ({
+  __esModule: true,
+  default: {
+    list: vi.fn(() => [
+      {
+        id: "1",
+        name: "BioGas",
+        slug: "biogas",
+        short_description: "desc",
+      },
+    ]),
+    create: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
+  },
+}));
 
 describe("Admin Services", () => {
   it("renders service list", async () => {

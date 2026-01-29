@@ -6,6 +6,7 @@ import { authHeader } from "../../lib/auth";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { useRequireAdmin } from "../../components/layout/useRequireAdmin";
 import PrimaryButton from "../../components/ui/PrimaryButton";
+import ProjectsStore from "../../lib/projectsStore";
 
 const STATUS_LABELS = {
   planned: "Planned",
@@ -41,24 +42,22 @@ function AdminProjects() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadProjects = async () => {
+  const loadProjects = () => {
     setLoading(true);
     setError("");
 
     try {
-      const data = await api.get("/api/v1/projects", {
-        headers: authHeader(),
-      });
-
-      const items = Array.isArray(data) ? data : [];
-      setProjects(items);
-      setFiltered(items);
+      const items = ProjectsStore.list();
+      const safeItems = Array.isArray(items) ? items : [];
+      setProjects(safeItems);
+      setFiltered(safeItems);
     } catch (err) {
       setError(err.message || "Failed to load projects.");
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     loadProjects();
@@ -86,18 +85,17 @@ function AdminProjects() {
     setFiltered(items);
   }, [projects, statusFilter, search]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     if (!window.confirm("Delete this project? This cannot be undone.")) return;
 
     try {
-      await api.delete(`/api/v1/projects/${id}`, {
-        headers: authHeader(),
-      });
-      await loadProjects();
+      ProjectsStore.remove(id);
+      loadProjects();
     } catch (err) {
       alert(err.message || "Failed to delete project.");
     }
   };
+
 
   return (
     <AdminLayout>

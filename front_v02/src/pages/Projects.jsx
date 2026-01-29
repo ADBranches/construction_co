@@ -1,37 +1,41 @@
 // src/pages/Projects.jsx
 import { useEffect, useState } from "react";
 import Seo from "../seo/Seo";
-import api from "../lib/apiClient";
 import ProjectCard from "../components/ProjectCard";
+import ProjectsStore from "../lib/projectsStore";
 
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    let mounted = true;
+    useEffect(() => {
+      let mounted = true;
 
-    api
-      .get("/api/v1/projects?limit=12&page=1")
-      .then((data) => {
+      try {
+        const items = ProjectsStore.list();
         if (!mounted) return;
 
-        // handle both paginated { items: [] } and raw [] just in case
-        const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
-        setProjects(items);
-        setLoading(false);
-      })
-      .catch((err) => {
+        setTimeout(() => {
+          if (mounted) {
+            setProjects(Array.isArray(items) ? items : []);
+            setLoading(false);
+          }
+        }, 0);
+      } catch (err) {
         if (!mounted) return;
-        setError(err?.message || "Failed to load projects.");
-        setLoading(false);
-      });
+        setTimeout(() => {
+          if (mounted) {
+            setError(err?.message || "Failed to load projects.");
+            setLoading(false);
+          }
+        }, 0);
+      }
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
+      return () => {
+        mounted = false;
+      };
+    }, []);
 
   return (
     <>

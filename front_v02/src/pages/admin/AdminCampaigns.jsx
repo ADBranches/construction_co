@@ -1,7 +1,8 @@
 // src/pages/admin/AdminCampaigns.jsx
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
-import api from "../../lib/apiClient";
+import CampaignsStore from "../../lib/campaignsStore"; 
+import DonationsStore from "../../lib/donationsStore";
 
 const STATUS_OPTIONS = ["draft", "active", "closed"];
 
@@ -22,20 +23,35 @@ export default function AdminCampaigns() {
     is_edit: false,
   });
 
-  const loadCampaigns = async (statusValue = "") => {
+  const loadCampaigns = (statusValue = "") => {
     setLoading(true);
     setError("");
+
     try {
-      const params = new URLSearchParams();
-      if (statusValue) {
-        params.set("status", statusValue);
-      }
-      const query = params.toString() ? `?${params.toString()}` : "";
-      const data = await api.get(`/api/v1/campaigns${query}`);
-      const items = Array.isArray(data) ? data : data?.items || [];
-      setCampaigns(items);
+      const all = CampaignsStore.list();
+      const filtered = statusValue
+        ? all.filter((c) => c.status === statusValue)
+        : all;
+
+      const withRaised = filtered.map((c) => {
+        const confirmed = DonationsStore
+          .listByCampaign(c.id)
+          .filter((d) => d.status === "confirmed");
+
+        const total = confirmed.reduce(
+          (sum, d) => sum + (Number(d.amount) || 0),
+          0
+        );
+
+        return {
+          ...c,
+          raised_amount: total,
+        };
+      });
+
+      setCampaigns(withRaised);
     } catch (err) {
-      setError(err.message || "Failed to load campaigns.");
+      setError(err?.message || "Failed to load campaigns.");
     } finally {
       setLoading(false);
     }
@@ -85,18 +101,19 @@ export default function AdminCampaigns() {
         ? Number(form.target_amount)
         : null,
       status: form.status,
+      isActive: form.status === "active",
     };
 
     try {
       if (form.is_edit && form.id) {
-        await api.put(`/api/v1/campaigns/${form.id}`, payload);
+        CampaignsStore.update(form.id, payload);
       } else {
-        await api.post("/api/v1/campaigns", payload);
+        CampaignsStore.create(payload);
       }
       resetForm();
-      await loadCampaigns(filterStatus);
+      loadCampaigns(filterStatus);
     } catch (err) {
-      setError(err.message || "Failed to save campaign.");
+      setError(err?.message || "Failed to save campaign.");
     } finally {
       setSaving(false);
     }
