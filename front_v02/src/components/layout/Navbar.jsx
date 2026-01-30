@@ -1,8 +1,8 @@
 // src/components/layout/Navbar.jsx
 import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { Menu, X, Phone, Mail, ArrowRight } from "lucide-react";
-import briskLogo from "/brisk_logo.png";
+import { Menu, X, Phone, ArrowRight } from "lucide-react";
+import briskLogo from "/brisk_logo5.png";
 
 const navItems = [
   { path: "/", label: "Home" },
@@ -25,16 +25,16 @@ export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState(null);
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white shadow-md border-b border-gray-100">
+    <header className="w-full sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
       <nav className="max-w-7xl mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          
-          {/* LOGO — standalone, bigger */}
+        {/* no fixed h-32; use nice vertical padding instead */}
+        <div className="flex items-center justify-between py-3 lg:py-4">
+          {/* LOGO – medium big, tagline still readable but not screaming */}
           <Link to="/" className="flex-shrink-0">
             <img
               src={briskLogo}
               alt="Brisk Farm Logo"
-              className="h-14 w-auto object-contain" // BIGGER LOGO
+              className="h-10 md:h-12 lg:h-14 w-auto object-contain"
             />
           </Link>
 
@@ -52,7 +52,6 @@ export default function Navbar() {
                     {item.label}
                   </button>
 
-                  {/* Dropdown */}
                   {activeDropdown === index && (
                     <div className="absolute left-0 mt-2 bg-white shadow-lg rounded-xl border border-gray-100 py-2 w-56 z-50">
                       {item.dropdown.map((drop, i) => (
@@ -72,11 +71,11 @@ export default function Navbar() {
                   key={index}
                   to={item.path}
                   className={({ isActive }) =>
-                    `text-sm font-semibold transition ${
+                    `text-sm font-semibold transition border-b-2 ${
                       isActive
-                        ? "text-[#f05010] border-b-2 border-[#f05010]"
-                        : "text-[#003023] hover:text-[#83c441]"
-                    }`
+                        ? "text-[#f05010] border-[#f05010]"
+                        : "text-[#003023] border-transparent hover:text-[#83c441]"
+                    } pb-1`
                   }
                 >
                   {item.label}
