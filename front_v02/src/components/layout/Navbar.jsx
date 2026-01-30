@@ -1,5 +1,5 @@
 // src/components/layout/Navbar.jsx
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { Menu, X, Phone, ArrowRight } from "lucide-react";
 import briskLogo from "/brisk_logo5.png";
@@ -9,27 +9,64 @@ const navItems = [
   {
     label: "Services",
     dropdown: [
-      { path: "/services/biogas", label: "Biogas & Energy" },
-      { path: "/services/farm-systems", label: "Smart Farm Systems" },
-      { path: "/services/livestock", label: "Livestock Housing" },
-      { path: "/services/construction", label: "Construction Works" },
+      {
+        path: "/services/animal-production-consultancy",
+        label: "Animal Production Consultancy",
+      },
+      {
+        path: "/services/farm-and-household-waste-management",
+        label: "Farm & Household Waste Management",
+      },
+      {
+        path: "/services/biodigester-installation",
+        label: "Biodigester Installation",
+      },
+      {
+        path: "/services/biogas-appliances-supply",
+        label: "Supply of Biogas Appliances",
+      },
+      {
+        path: "/services/capacity-building-services",
+        label: "Capacity Building Services",
+      },
+      {
+        path: "/services/pasture-establishment-and-management",
+        label: "Pasture Establishment & Management",
+      },
     ],
   },
   { path: "/projects", label: "Projects" },
   { path: "/about", label: "About Us" },
   { path: "/contact", label: "Contact" },
+  { path: "/donate", label: "Donate" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
+  // ⏱ small delay before hiding dropdown so it doesn't disappear instantly
+  const hideTimeoutRef = useRef(null);
+
+  const handleDropdownEnter = (index) => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    setActiveDropdown(index);
+  };
+
+  const handleDropdownLeave = () => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 300); // adjust 300 → 400 if you want it to linger more
+  };
+
   return (
     <header className="w-full sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
       <nav className="max-w-7xl mx-auto px-4 lg:px-8">
-        {/* no fixed h-32; use nice vertical padding instead */}
         <div className="flex items-center justify-between py-3 lg:py-4">
-          {/* LOGO – medium big, tagline still readable but not screaming */}
+          {/* LOGO */}
           <Link to="/" className="flex-shrink-0">
             <img
               src={briskLogo}
@@ -44,16 +81,16 @@ export default function Navbar() {
               item.dropdown ? (
                 <div
                   key={index}
-                  className="relative group"
-                  onMouseEnter={() => setActiveDropdown(index)}
-                  onMouseLeave={() => setActiveDropdown(null)}
+                  className="relative"
+                  onMouseEnter={() => handleDropdownEnter(index)}
+                  onMouseLeave={handleDropdownLeave}
                 >
                   <button className="text-[#003023] font-semibold text-sm hover:text-[#83c441] transition flex items-center gap-1">
                     {item.label}
                   </button>
 
                   {activeDropdown === index && (
-                    <div className="absolute left-0 mt-2 bg-white shadow-lg rounded-xl border border-gray-100 py-2 w-56 z-50">
+                    <div className="absolute left-0 mt-2 bg-white shadow-lg rounded-xl border border-gray-100 py-2 w-72 z-50">
                       {item.dropdown.map((drop, i) => (
                         <NavLink
                           key={i}
