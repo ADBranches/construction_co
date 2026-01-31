@@ -36,7 +36,18 @@ const navItems = [
     ],
   },
   { path: "/projects", label: "Projects" },
-  { path: "/about", label: "About Us" },
+  {
+    label: "About",
+    dropdown: [
+      { path: "/about", label: "Overview" },
+      { path: "/about#company", label: "About the Company" },
+      { path: "/about#story", label: "Our Story & History" },
+      { path: "/about#values", label: "Vision, Mission & Values" },
+      { path: "/about#journey", label: "Our Journey" },
+      { path: "/about#gallery", label: "Gallery" },
+      { path: "/about#faqs", label: "FAQs" },
+    ],
+  },
   { path: "/contact", label: "Contact" },
   { path: "/donate", label: "Donate" },
 ];
@@ -44,11 +55,15 @@ const navItems = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [dropdownPinnedIndex, setDropdownPinnedIndex] = useState(null);
 
-  // ⏱ small delay before hiding dropdown so it doesn't disappear instantly
+  // small delay before hiding dropdown when using hover
   const hideTimeoutRef = useRef(null);
 
   const handleDropdownEnter = (index) => {
+    // if user has pinned a dropdown by clicking, don't override it with hover
+    if (dropdownPinnedIndex !== null) return;
+
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
@@ -57,9 +72,29 @@ export default function Navbar() {
   };
 
   const handleDropdownLeave = () => {
+    // if pinned via click, don't auto-hide at all
+    if (dropdownPinnedIndex !== null) return;
+
     hideTimeoutRef.current = setTimeout(() => {
       setActiveDropdown(null);
-    }, 300); // adjust 300 → 400 if you want it to linger more
+    }, 700); // a bit longer so it doesn't vanish too fast
+  };
+
+  const handleDropdownClick = (index) => {
+    // click = “pin/unpin” the dropdown so it doesn’t timeout easily
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+
+    if (dropdownPinnedIndex === index) {
+      // unpin & close
+      setDropdownPinnedIndex(null);
+      setActiveDropdown(null);
+    } else {
+      setDropdownPinnedIndex(index);
+      setActiveDropdown(index);
+    }
   };
 
   return (
@@ -70,7 +105,7 @@ export default function Navbar() {
           <Link to="/" className="flex-shrink-0">
             <img
               src={briskLogo}
-              alt="Brisk Farm Logo"
+              alt="Brisk Farm Solutions & Construction Company Logo"
               className="h-10 md:h-12 lg:h-14 w-auto object-contain"
             />
           </Link>
@@ -85,7 +120,11 @@ export default function Navbar() {
                   onMouseEnter={() => handleDropdownEnter(index)}
                   onMouseLeave={handleDropdownLeave}
                 >
-                  <button className="text-[#003023] font-semibold text-sm hover:text-[#83c441] transition flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleDropdownClick(index)}
+                    className="text-[#003023] font-semibold text-sm hover:text-[#83c441] transition flex items-center gap-1"
+                  >
                     {item.label}
                   </button>
 

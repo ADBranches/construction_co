@@ -8,6 +8,7 @@ import {
   Twitter,
   Instagram,
   Linkedin,
+  Youtube,
 } from "lucide-react";
 
 export default function Footer() {
@@ -32,13 +33,17 @@ export default function Footer() {
     },
     {
       icon: MapPin,
-      text: "Ssenge, Wakiso • Uganda",
+      text: "Ntinda–Kigoowa Road, Mai Mall • Kampala, Uganda",
       href: "#",
     },
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook" }, // update later
+    {
+      icon: Facebook,
+      href: "https://www.facebook.com/profile.php?id=61581655871026",
+      label: "Brisk Farm Solutions on Facebook",
+    },
     {
       icon: Twitter,
       href: "https://x.com/brisk_company",
@@ -49,7 +54,16 @@ export default function Footer() {
       href: "https://instagram.com/briskco_",
       label: "@briskco_ on Instagram",
     },
-    { icon: Linkedin, href: "#", label: "LinkedIn" }, // update later
+    {
+      icon: Linkedin,
+      href: "https://www.linkedin.com/in/briskfarmsolutionsandconstructioncompany/",
+      label: "Brisk Farm Solutions on LinkedIn",
+    },
+    {
+      icon: Youtube,
+      href: "https://www.youtube.com/@biogasexpertuganda3431/shorts",
+      label: "Biogas Expert Uganda on YouTube",
+    },
   ];
 
   return (

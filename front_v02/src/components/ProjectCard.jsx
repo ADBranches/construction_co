@@ -12,7 +12,16 @@ import { MapPin, ArrowRight, CheckCircle } from "lucide-react";
  *   gallery_images?: string[]
  * }
  */
-export default function ProjectCard({ project, index = 0 }) {
+export default function ProjectCard({
+  project = {
+    slug: "",
+    name: "Brisk Farm Project",
+    cover_image_url: "/images/projects/biodigester-installation_01.webp",
+    status: "COMPLETED",
+    short_description: "",
+  },
+  index = 0,
+}) {
   const statusRaw = project?.status || "ONGOING";
   const status =
     typeof statusRaw === "string" ? statusRaw.toUpperCase() : String(statusRaw);
@@ -49,7 +58,7 @@ export default function ProjectCard({ project, index = 0 }) {
 
   const name = project?.name || "Brisk Farm Project";
   const shortDescription = project?.short_description || "";
-  const location = project?.location; // will be undefined now → pill hides
+  const location = project?.location;
   const clientName = project?.client_name;
 
   // 🔁 Local slider state
@@ -125,7 +134,7 @@ export default function ProjectCard({ project, index = 0 }) {
             </div>
           )}
 
-          {/* Location pill – will disappear now because location is removed */}
+          {/* Location pill */}
           {location && (
             <div className="absolute top-4 right-4">
               <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md flex items-center gap-1.5">
@@ -193,15 +202,3 @@ export default function ProjectCard({ project, index = 0 }) {
     </motion.div>
   );
 }
-
-// Defaults so tests/stories don’t crash if project is missing
-ProjectCard.defaultProps = {
-  project: {
-    slug: "",
-    name: "Brisk Farm Project",
-    cover_image_url: "/images/projects/biodigester-installation_01.webp",
-    status: "COMPLETED",
-    short_description: "",
-  },
-  index: 0,
-};
