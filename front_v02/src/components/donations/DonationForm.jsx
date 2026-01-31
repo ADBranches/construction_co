@@ -20,7 +20,7 @@ export default function DonationForm({
       {/* Amount & currency */}
       <div className="grid gap-4 md:grid-cols-[2fr,1fr]">
         <div>
-        // AFTER
+         
         <label
             htmlFor="amount"
             className="block text-xs font-semibold text-[var(--brand-contrast)] mb-1"
@@ -45,7 +45,7 @@ export default function DonationForm({
         </div>
 
         <div>
-          // AFTER
+           
             <label
                 htmlFor="currency"
                 className="block text-xs font-semibold text-[var(--brand-contrast)] mb-1"
@@ -139,7 +139,7 @@ export default function DonationForm({
       {/* Donor details */}
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          // AFTER
+           
         <label
            htmlFor="donor_name"
            className="block text-xs font-semibold text-[var(--brand-contrast)] mb-1"
@@ -163,7 +163,7 @@ export default function DonationForm({
         </div>
 
         <div>
-          // AFTER
+           
             <label
                 htmlFor="donor_email"
                 className="block text-xs font-semibold text-[var(--brand-contrast)] mb-1"
@@ -188,7 +188,7 @@ export default function DonationForm({
       </div>
 
       <div>
-        // AFTER
+         
         <label
             htmlFor="donor_phone"
             className="block text-xs font-semibold text-[var(--brand-contrast)] mb-1"
@@ -233,7 +233,7 @@ export default function DonationForm({
 
       {/* Message */}
       <div>
-        // AFTER
+         
         <label
             htmlFor="message"
             className="block text-xs font-semibold text-[var(--brand-contrast)] mb-1"

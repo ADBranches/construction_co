@@ -16,6 +16,20 @@ export default function DonationSummary({
 }) {
   const amountDisplay = form.amount ? Number(form.amount).toLocaleString() : "";
   const paymentLabel = PAYMENT_LABELS[form.payment_method] || "Card";
+
+  const PAYMENT_INSTRUCTIONS = {
+    card:
+      "You’ll pay using your Visa / Mastercard. Brisk’s receiving card ends with 1612.",
+    mtn_momo:
+      "Send your MTN MoMo payment to +256 783 111 015. Use your name as the payment reference.",
+    airtel_momo:
+      "Send your Airtel Money payment to +256 783 111 015. Use your name as the payment reference.",
+  };
+
+  const paymentInstruction =
+    PAYMENT_INSTRUCTIONS[form.payment_method] ||
+    "You’ll complete the payment with Brisk’s team.";
+
   const campaignName = campaign?.name || "General support (Brisk allocates)";
 
   return (
@@ -25,8 +39,8 @@ export default function DonationSummary({
           Review your donation
         </p>
         <p className="text-[11px] text-[var(--brand-contrast)]/70">
-          Please confirm the details below before continuing to the secure payment
-          step.
+          Please confirm the details below before continuing to the secure
+          payment step.
         </p>
       </div>
 
@@ -39,11 +53,21 @@ export default function DonationSummary({
         </div>
 
         <div className="flex justify-between">
-          <span className="text-[var(--brand-contrast)]/80">Payment method</span>
+          <span className="text-[var(--brand-contrast)]/80">
+            Payment method
+          </span>
+
           <span className="font-medium text-[var(--brand-contrast)]">
             {paymentLabel}
           </span>
         </div>
+
+        {/* ⬇️ New instructions line */}
+        {paymentInstruction && (
+          <p className="mt-1 text-[10px] text-[var(--brand-contrast)]/60">
+            {paymentInstruction}
+          </p>
+        )}
 
         <div className="flex justify-between gap-4">
           <span className="text-[var(--brand-contrast)]/80">Campaign</span>
@@ -103,7 +127,7 @@ export default function DonationSummary({
           disabled={submitting}
           className="inline-flex items-center justify-center rounded-xl bg-[var(--brand-yellow)] px-6 py-2 text-[11px] md:text-sm font-semibold text-white hover:bg-[#f05010] transition disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {submitting ? "Processing…" : "Confirm & continue to payment"}
+          {submitting ? "Processing…" : "Confirm Donation"}
         </button>
       </div>
     </div>
