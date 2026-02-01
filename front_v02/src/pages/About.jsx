@@ -188,7 +188,7 @@ function About() {
     {
       question: "What does Brisk Farm Solutions and Construction Company do?",
       answer:
-        "We are a Ugandan, women-led company providing sustainable agriculture, biogas and clean energy solutions, and eco-friendly construction for farms, institutions and communities.",
+        "We are a Ugandan,   company providing sustainable agriculture, biogas and clean energy solutions, and eco-friendly construction for farms, institutions and communities.",
     },
     {
       question: "Where do you operate?",
@@ -212,7 +212,7 @@ function About() {
       {/* HERO / COMPANY */}
       <section
         id="company"
-        className="relative overflow-hidden bg-gradient-to-br from-[#003023] via-[#004633] to-[#002219] rounded-3xl mb-16"
+        className="relative overflow-hidden bg-gradient-to-br from-[#004633] via-[#006a45] to-[#008b4a] rounded-3xl mb-16"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_#ffffff0d,_transparent_60%)]" />
 
@@ -275,18 +275,18 @@ function About() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-8"
+                className="bg-gradient-to-br from-[#f6fef9] via-white to-[#ffece1] border border-[#ffd0b0] rounded-3xl p-8 shadow-lg"
               >
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-[#f05010] to-[#ff6b35] rounded-2xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-[#f05010] rounded-2xl flex items-center justify-center shadow-md">
                     <Rocket className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">Our Vision</h3>
+                    <h3 className="text-2xl font-bold text-[#003023]">Our Vision</h3>
                     <div className="w-12 h-1 bg-[#f05010] rounded-full mt-2" />
                   </div>
                 </div>
-                <p className="text-white/90 leading-relaxed">
+                <p className="text-[#003023]/80 leading-relaxed">
                   Contributing to a sustainable future where agriculture and
                   energy thrive in harmony with the environment through
                   innovation, education, and partnership.
@@ -297,26 +297,25 @@ function About() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-8"
+                className="bg-gradient-to-br from-[#f6fef9] via-white to-[#e5f7d4] border border-[#c7ec9f] rounded-3xl p-8 shadow-lg"
               >
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-[#83c441] to-[#a0d64b] rounded-2xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-[#83c441] rounded-2xl flex items-center justify-center shadow-md">
                     <Target className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">
-                      Our Mission
-                    </h3>
+                    <h3 className="text-2xl font-bold text-[#003023]">Our Mission</h3>
                     <div className="w-12 h-1 bg-[#83c441] rounded-full mt-2" />
                   </div>
                 </div>
-                <p className="text-white/90 leading-relaxed">
+                <p className="text-[#003023]/80 leading-relaxed">
                   We innovate and partner to advance sustainable agriculture
                   practices and renewable energy solutions, enhancing food
                   security, promoting eco-friendly livelihoods, and contributing
                   to a greener Uganda and beyond.
                 </p>
               </motion.div>
+
             </div>
           </div>
         </div>
@@ -466,7 +465,7 @@ function About() {
         className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20"
       >
         {/* Objectives card */}
-        <div className="bg-gradient-to-br from-[#003023] to-[#004633] rounded-3xl p-8 text-white">
+        <div className="bg-gradient-to-br from-[#003023] via-[#005a3a] to-[#00854a] rounded-3xl p-8 text-white shadow-xl">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center">
               <Target className="w-7 h-7 text-[#f05010]" />
